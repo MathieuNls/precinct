@@ -1,0 +1,63 @@
+
+\documentclass[conference]{IEEEtran}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{enumerate}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{tikz}
+
+\definecolor{bblue}{HTML}{4F81BD}
+\definecolor{rred}{HTML}{C0504D}
+\definecolor{ggreen}{HTML}{9BBB59}
+\definecolor{ppurple}{HTML}{9F4C7C}
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+\begin{document}
+
+\title{PRECINCT: An Incremental Algorithm to Prevent Clone Insertion}
+
+
+\author{\IEEEauthorblockN{Mathieu Nayrolles, }
+\IEEEauthorblockA{Software Behaviour Analysis (SBA) Research Lab\\
+ECE, Concordia University\\
+Montreal, Canada\\
+m\_nayrol@ece.concordia.ca}
+\and
+\IEEEauthorblockN{Abdelwahab Hamou-Lhadj}
+\IEEEauthorblockA{Software Behaviour Analysis (SBA) Research Lab\\
+ECE, Concordia University\\
+Montreal, Canada\\
+abdelw@ece.concordia.ca}}
+
+% make the title area
+\maketitle
+
+% As a general rule, do not put math, special symbols or citations
+% in the abstract
+\begin{abstract}
+  Software clones are considered harmful in software maintenance and evolution. However, after a decade and a half of research, only few approaches have targeted the prevention aspect of clones detection.
+  In this paper, we propose a novel approach named PRECINCT (PREventing Clones INsertion at Commit Time). PRECINCT focuses on near-miss software clones are copied -- or reinvented -- fragments where minor to extensive modifications have been made and more specifically on detecting at commit time by means of pre-commit hooks.
+  Efficiently detecting near-miss software clones at commit time might call for further refactoring or simply hint developers that they reinvented one piece of code.
+  We apply and validate PRECINCT in terms of precision and recall on seven systems developed independently with a wide range of technologies, size and purposes.
+  The validation demonstrates that our approach detects near-miss software clones before they reach the source version system with a 100\% precision and a 93\% recall.
+
+
+
+\end{abstract}
+
+
+\IEEEpeerreviewmaketitle
+
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{library.bib}
+
+
+\end{document}
