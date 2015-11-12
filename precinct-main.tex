@@ -135,7 +135,7 @@ PRECINCT takes advantage of that by redefining the blocks that should be extract
 We have selected TXL for several reasons. First, TXL is easy to install and to integrate with a developer workflow. Second, it was relatively easy to create a grammar that accepts commits as input. This is because TXL is shipped with C, Java, Csharp, Python and WSDL grammars that define all the particularities of these languages, with the ability to customize these grammar to to accept changesets (chunks of the modified source code that includes the added, modified, and deleted lines) instead of the whole code.
 
 
-Algorithm~\ref{alg:extract} presents an overview of the "extract" and "save" blocks operation.
+Algorithm~\ref{alg:extract} presents an overview of the "extract" and "save" blocks operations.
 
 \begin{algorithm}[H]
  \KwData{$Changeset[]$ changesets\;
@@ -167,15 +167,12 @@ Algorithm~\ref{alg:extract} presents an overview of the "extract" and "save" blo
 \end{algorithm}
 
 This algorithm receives as arguments, the changesets, the blocks that have been previously extracted and a boolean named compare\_history.
-Then, from lines 1 to 9 lies of $for$ loop that iterates over the changesets
-For each changeset (lines 2), we extract the blocks by calling the $~extract\_blocks(Changeset~cs)$ function.
+Then, from Lines 1 to 9 lie the $for$ loop that iterates over the changesets. For each changeset (Line 2), we extract the blocks by calling the $~extract\_blocks(Changeset~cs)$ function.
 In this function, we expand our changeset to the left and to the right in order to have a complete block.
-As depicted by Listing~\ref{commitsample}, changesets contain only the modified chunk of code and not necessarily complete blocks.
-Indeed, we have a block from line 3 to line 6 and deleted lines from line 8 to 14.
-However, in line 7 we can see the end of a block but we do not have the beginning of the said block.
-Therefore, we need to expand the changesets to the left in order to have synthetically correct blocks.
+As depicted by Listing~\ref{commitsample}, changesets contain only the modified chunk of code and not necessarily complete blocks. Indeed, we have a block from Line 3 to Line 6 and deleted lines from Line 8 to 14.
+However, in Line 7 we can see the end of a block but we do not have its beginning. Therefore, we need to expand the changeset to the left in order to have syntactically correct blocks.
 We do so by checking block's beginning and ending, \{ and \} in C for example.
-Then, we send these expanded changesets to txl for blocks extraction, formalization.
+Then, we send these expanded changesets to TXL for block extraction and formalization.
 
 \noindent\begin{minipage}{0.90\linewidth}
 
@@ -184,15 +181,15 @@ Then, we send these expanded changesets to txl for blocks extraction, formalizat
 \end{minipage}
 
 
-For each extracted block, we check if the current block overrides (replace) a previous block (line 4).
-In such a case, we delete the previous block as it does not represent the current version of the program anymore (line 5).
-Also, we got an optional behavior of PRECINCT defined in line 4.
-Indeed, the compare\_history is a condition to delete overridden blocks.
-We believe that overridden blocks have been so for a good reason (bug, default, removed features, \ldots) and if a newly inserted block matches an old one, it could be worth knowing to improve the quality of the system at hand.
+For each extracted block, we check if the current block overrides (replaces) a previous block (Line 4).
+In such a case, we delete the previous block as it does not represent the current version of the program anymore (Line 5).
+Also, we have an optional step in PRECINCT defined in Line 4. The compare\_history is a condition to delete overridden blocks.
+
+[WAHAB: I DON'T UNDERSTAND THE FOLLOWING 3 SENTENCES. PLEASE REPHRASE]
+We believe that overridden blocks have been so far a good reason (bug, default, removed features, \ldots) and if a newly inserted block matches an old one, it could be worth knowing to improve the quality of the system at hand.
 This feature is deactivated by default.
 
-In summary, this step receives the files and lines modified by the latest changes of a developer and produce an up to date block representation of the system at hand.
-The blocks can be analyzed in the next step to discover potential clones.
+In summary, this step receives the files and lines, modified by the latest changes made by the developer and produces an up to date block representation of the system at hand. The blocks can be analysed in the next step to discover potential clones.
 
 \subsection{Compare Extracted Blocks}
 \label{sub:Compare Extracted Blocks}
