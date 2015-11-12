@@ -88,43 +88,24 @@ Finally, we propose concluding remarks in Section~\ref{sec:Conclusion}.
     \caption{ Overview of the PRECINCT Approach.\label{fig:precinct-approach}}
 \end{figure*}
 
-In this section, we present the PRECINCT approach and its steps in details. Our approach is composed of six different steps.
-The first and the last steps are part of the day-to-day workflow of a programmer using a source version control.
-Indeed the first step is the commit step where developers send their latest change to the central repository and the last step is the reception of said commit by the central repository.
-The second step is the pre-commit hook which kicks in as the first operation when one wants to commit.
-The pre-commit hook have access to the changes in terms of files that has been modified and more specifically, lines that has been modified.
-The modified lines of the files are sent to TXL\cite{Cordy2006a} for block extraction.
-Then, the blocks are compared to previously extracted blocks in order to identify clones candidates using NICAD\cite{Cordy2011}.
-Finally, the output of Nicad is further refined and presented to the user for a decision round.
-
-In the rest of this section, we present each step in details.
+The PRECINCT approach is composed of six steps. The first step is the commit step where developers send their latest change to the central repository and the last step is the reception of the commit by the central repository. The second step is the pre-commit hook which kicks in as the first operation when one wants to commit. The pre-commit hook has access to the changes in terms of files that have been modified, more specifically, the lines that have been modified. The modified lines of the files are sent to TXL\cite{Cordy2006a} for block extraction. Then, the blocks are compared to previously extracted blocks in order to identify candidate clones  using Nicad\cite{Cordy2011}. Finally, the output of Nicad is further refined and presented to the user for a decision round. These steps are discussed in more detail in the following subsections.
 
 \subsection{Commit}
 \label{sub:Commit}
 
-In version control systems, a commit adds the latest changes to the source code to the repository, making these changes part of the head revision of the repository.
-Unlike commits in data management, commits in version control systems are kept in the repository indefinitely.
-Thus, when other users do an update or a checkout from the repository, they will receive the latest committed version, unless they specify they wish to retrieve a previous version of the source code in the repository.
-Version control systems allow rolling back to previous versions easily. In this context, a commit within a version control system is protected as it is easily rolled back, even after the commit has been done.
+In version control systems, a commit adds the latest changes made to the source code to the repository, making these changes part of the head revision of the repository. Commits in version control systems are kept in the repository indefinitely. Thus, when other users do an update or a checkout from the repository, they will receive the latest committed version, unless they wish to retrieve a previous version of the source code in the repository. Version control systems allow rolling back to previous versions easily. In this context, a commit within a version control system is protected as it is easily rolled back, even after the commit has been done.
 
 \subsection{Pre-Commit Hook}
 \label{sub:Pre-Commit Hook}
 
 Hooks are custom scripts set to fire off when certain important actions occur.
-There are two groups of these hooks: client-side and server-side.
-Client-side hooks are triggered by operations such as committing and merging, while server-side hooks run on network operations such as receiving pushed commits.
-You can use these hooks for all sorts of reasons.
+There are two groups of  hooks: client-side and server-side. Client-side hooks are triggered by operations such as committing and merging, whereas server-side hooks run on network operations such as receiving pushed commits. These hooks can be used for all sorts of reasons (GIVE ONE OR TWO EXAMPLES).
 
-The pre-commit hook is run first, before you even type in a commit message.
-It's used to inspect the snapshot that's about to be committed, to see if you've forgotten something, to make sure tests run, or to examine whatever you need to inspect in the code.
-Exiting non-zero from this hook aborts the commit, although you can bypass it with git commit --no-verify.
-You can do things like check for code style (run lint or something equivalent), check for trailing whitespace (the default hook does exactly this), or check for appropriate documentation on new methods.
 
-PRECINCT implementation is a suite of bash scripts and the entry point of these scripts lies in the pre-commit hooks.
-Pre-commit hooks are easy to create and implement as depicted in Listing~\ref{gitprehook}.
-This pre-hook is shipped with Git\footnote{https://git-scm.com/} which is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
-From lines 3 to 11, the script identifies if the commit is the first one in order to select the revision to work against.
-Then, in lines 18 and 19, the script checks for trailing whitespace and fails if any are found.
+The pre-commit hook is run first, before one even types in a commit message. It is used to inspect the snapshot that is about to be committed. This is used to allow developers to check if they have not forgotten anything, to run tests, or to examine whatever the need to inspect the code. Exiting [WAHAB: I DO NOT UNDERSTAND THIS SENTENCE] non-zero from this hook aborts the commit, although one can bypass it with a no-verify commit (a feature that exists in Git and other version systems).
+Developers can do things like check for code style (run lint or something equivalent), check for trailing white spaces (the default hook does exactly this), or check for appropriate documentation on new methods.
+
+PRECINCT is a set of bash scripts where the entry point of these scripts lies in the pre-commit hooks. Pre-commit hooks are easy to create and implement as depicted in Listing~\ref{gitprehook}. The pre-hook is shipped in version control systems like Git\footnote{https://git-scm.com/}. Note that even though we use Git as the main version control to present PRECINCT, we believe that the techniques presented in this paper are readily applicable to other version control systems. From lines 3 to 11, the script identifies if the commit is the first one in order to select the revision to work against. Then, in Lines 18 and 19, the script checks for trailing whitespace and fails if any are found.
 
 \noindent\begin{minipage}{0.90\linewidth}
 
@@ -138,10 +119,7 @@ For PRECINCT to work, we just have to add the call to our script suite instead o
 \label{sub:Extract and Save Blocks}
 
 A block is a set of consecutive lines of code that will be compared to all other blocks in order to identify clones.
-To achieve this critical part, we rely on TXL\cite{Cordy2006a} which is a well-known first-order functional programming over linear term rewriting.
-For TXL to work, one has to write a grammar describing the syntax of the source  language and the wanted transformations.
-TXL has three main phases: \textit{parse, transform}, \textit{unparse}.
-In the parse phase, the grammar is controlling not only the input but also the output form. Indeed, Listing~\ref{txlsample} --- extracted from the official documentation\footnote{http://txl.ca} --- shows a grammar matching a \textit{if-then-else} statement in C with some special keywords: [IN] (indent), [EX] (exdent) and [NL] (newline) that will be used for the output form.
+To achieve this critical part of PRECINCT, we rely on TXL\cite{Cordy2006a}, which is a first-order functional programming over linear term rewriting, developed by Cordy et al.\cite{Cordy2006a}. For TXL to work, one has to write a grammar describing the syntax of the source  language and the transformations needed. TXL has three main phases: \textit{parse, transform}, \textit{unparse}. In the parse phase, the grammar controls not only the input but also the output form. Listing~\ref{txlsample} --- extracted from the official documentation\footnote{http://txl.ca} --- shows a grammar matching a \textit{if-then-else} statement in C with some special keywords: [IN] (indent), [EX] (exdent) and [NL] (newline) that will be used for the output form.
 
 \noindent\begin{minipage}{0.90\linewidth}
 
@@ -149,25 +127,15 @@ In the parse phase, the grammar is controlling not only the input but also the o
 
 \end{minipage}
 
-Then, the \textit{transform} phase will, as its name suggests, apply transformation rules that can, for example, normalize or abstract the source code.
-Finally, on the third phase of TXL,  called \textit{unparse}, unparses the transformed parsed input in order to output it.
-
-Also, TXL supports what they creators calls Agile Parsing\cite{Dean}, which allow developer to redefined rule of the grammar and therefore, apply different rules than the original ones.
+Then, the \textit{transform} phase will, as the name suggests, apply transformation rules that can, for example, normalize or abstract the source code. Finally, the third phase of TXL,  called \textit{unparse}, unparses the transformed parsed input in order to output it. Also, TXL supports what the creators call Agile Parsing\cite{Dean}, which allow developers to redefine rules of the grammar and, therefore, apply different rules than the original ones.
 
 
-In PRECINCT we took advantage of that by redefining which blocks should be extracted from clone comparison and which blocks are out of scope in an effort to reduce the size (1) and ease the understandability of the output (2).
+PRECINCT takes advantage of that by redefining the blocks that should be extracted for the purpose of clone comparison, leaving out the  blocks that are out of scope.  More precisely, before each commit, we only extract the blocks belonging to the modified parts of the source code, hence reducing the size of the output, a common issue of clone detection techniques as discussed in the introductory section. 
+
+We have selected TXL for several reasons. First, TXL is easy to install and to integrate with a developer workflow. Second, it was relatively easy to create a grammar that accepts commits as input. This is because TXL is shipped with C, Java, Csharp, Python and WSDL grammars that define all the particularities of these languages, with the ability to customize these grammar to to accept changesets (chunks of the modified source code that includes the added, modified, and deleted lines) instead of the whole code.
 
 
-More specifically, at before each commit, we only extract the blocks belonging to the modified parts of the source code, henceforth greatly reducing the output size.
-
-We have chosen TXL for several reasons.
-First, TXL is easy to install and to integrate to a developer workflow.
-Second, it was relatively easy to create a grammar that accepts commit input.
-Indeed, TXL is shipped with c, java, csharp, python and wsdl grammar that defines all the particularities of these languages and we could tweak them in order to accept changesets.
-Changesets are chunks of the modified source code that includes the added, modified and deleted lines.
-
-
-Algorithm~\ref{alg:extract} presents an overview of the extract and save blocks operation.
+Algorithm~\ref{alg:extract} presents an overview of the "extract" and "save" blocks operation.
 
 \begin{algorithm}[H]
  \KwData{$Changeset[]$ changesets\;
