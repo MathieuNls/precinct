@@ -21,7 +21,7 @@
 
 \begin{document}
 
-\title{PRECINCT:\@ An Incremental Algorithm to Prevent Clone Insertion}
+\title{PRECINCT:\@ An Incremental Approach for Preventing Clone Insertion at Commit Time}
 
 
 \author{\IEEEauthorblockN{Mathieu Nayrolles, }
@@ -42,11 +42,7 @@ abdelw@ece.concordia.ca}}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-  Software clones are considered harmful in software maintenance and evolution. However, after a decade and a half of research, only few approaches have targeted the prevention aspect of clones detection.
-  In this paper, we propose a novel approach named PRECINCT (PREventing Clones INsertion at Commit Time). PRECINCT focuses on near-miss software clones are copied --- or reinvented --- fragments where minor to extensive modifications have been made and more specifically on detecting at commit time by means of pre-commit hooks.
-  Efficiently detecting near-miss software clones at commit time might call for further refactoring or simply hint developers that they reinvented one piece of code.
-  We apply and validate PRECINCT in terms of precision and recall on seven systems developed independently with a wide range of technologies, size and purposes.
-  The validation demonstrates that our approach detects near-miss software clones before they reach the source version system with a 100\% precision and a 93\% recall.
+  Software clones are considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades. Interestingly, most existing techniques focus on detecting clones after they are inserted in the code.  In this paper, we take another look at the clone detection problem by designing a novel approach for preventing the insertion of clones in the first place. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time),  detects efficiently  near-miss software clones at commit time by means of pre-commit hooks. This way, changes to the code are analysed and suspicious copies are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to seven systems developed independently shows that PRECINCT achieves 100\% precision and a 93\% recall.
 
 
 
@@ -59,40 +55,23 @@ abdelw@ece.concordia.ca}}
 \label{sec:Introduction}
 
 
-Code or software clones appear when developers reuse code with little to no modification.
-Previous research has shown that clones can account for 7\% to 50\% of a given software\cite{Baker, StephaneDucasse}.
-Developers often reuse code and create clones in their software on purpose\cite{Kim2005}.
-Nevertheless, clones are considered a bad practice in software development and therefore, harmful\cite{Kapser2006,Juergens2009,Li2006}.
-The most obvious way a clone can hazardous for the quality of a software system is if a default or bug is discovered in one segment of code that has been copied pasted several times, then the developers would have to remember the places where this segment has been reused in order to fix the default in each of them.
+Code clones appear when developers reuse code with little to no modification to the original code.
+Studies have shown  that clones can account for about 7\% to 50\% of code in a given software system\cite{Baker, StephaneDucasse}.
+Developers often reuse code (and create clones) in their software on purpose\cite{Kim2005}.
+Nevertheless, clones are considered a bad practice in software development since they can introduce new bugs in the code\cite{Kapser2006,Juergens2009,Li2006}. If a  bug is discovered in one segment of the code that has been copied and pasted several times, then the developers will have to remember the places where this segment has been reused in order to fix the bug in each of them.
 
-In order to help developers to deal with clones, researchers and practitioners have published hundreds of studies and dozens of tools using different approaches:   (1) textual where the source code is considered as text and transformation or normalization is applied to it in order to compare it with order code fragment\cite{Johnson1994,Johnson1993, Cordy2011, Roy2008}.
-(2) Lexical where the source code is sliced into sequences of tokens as a compiler would\cite{Baker,Bakera,Baker2002,Kamiya2002,Li2006}.
-(3) Syntactic where the source code is converted into trees, more particularly abstract syntax tree (AST) and then, the clone detection is performed using tree matching algorithms\cite{Baxter1998, Komondoor2000, Tairas2006, Falke2008}.
+In the last two decades, there have been many studies and tools that aim at detecting clones. They can be grouped into three categories. The first category includes techniques that treat the source code as text and use transformation and normalization  to compare various code fragments \cite{Johnson1994,Johnson1993, Cordy2011, Roy2008}. The second category includes methods that
+use lexical analysis, where the source code is sliced into sequences of tokens, similar to the way a compiler operates\cite{Baker,Bakera,Baker2002,Kamiya2002,Li2006}. The tokens are used to compare code fragments. Finally, syntactic analysis has also been performed where the source code is converted into trees, more particularly abstract syntax tree (AST), and then the clone detection is performed using tree matching algorithms\cite{Baxter1998, Komondoor2000, Tairas2006, Falke2008}.
 
-Henceforth, clones detection can be considered as a mature and still active field of research with two decades of research and hundreds of publications.
-Consequently, practitioners and engineers know that copy-pasting segment of code can hinder the maintenance and the quality of their systems and that approaches exist to detect them.
-However, the use of such approaches and tools is not as widespread as one might think.
-Indeed, as for automatic bug finding tools, the main reasons for this lack of infatuation are that these tools are known to have (1) massive outputs which is (2) hard to understand and contain (3) a high amount of false positives.
-Moreover, these tools are (4) hard to configure and there is (5) little to no integration of these tools in the day-to-day workflow of a developer\cite{Johnson2013}.
+Despite the advances in clone detection, the use of exiting clone detection tools is not as widespread as one might think. The main factors that contribute to this are summarized in what follows \cite{Johnson2013}: These tools are known to output a large number of data, making it hard to understand and analyse their results. They tend to have a high amount of false positives.
+They are also hard to configure and do not integrate well with the day-to-day workflow of a developer.
 
-In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) that focuses on preventing the insertion of clones at commit time.
-More specifically, our approach provides a clone detection process that eases the five major reasons that limit the adoption of such tools.
-To do so, we use pre-commit hooks capabilities of modern source code version control.
-A pre-commit hook is a process that one can implements to receive the latest modification to the source code done by a given developer just before the code reaches the central repository.
-Then, analysis can be done using bash programming or calling external programs, allowing the changes to go through or not.
-PRECINCT is, in fact, a pre-commit hook that detects clones that might have been inserted in the latest changes with regard to the rest of the source code.
-Consequently, only a fraction of the code is analyzed and PRECINCT reduce the output by 70\% (compared to the clone detector PRECINCT is built upon NiCad\cite{Cordy2011}).
-Moreover, the detected clones are presented in using a classical diff output that developers are used to.
-Hence, concerns (1) \textit{massive outputs} and (2) \textit{hard to understand} are less than in other tools.
-Also, PRECINCTS can be installed and configured using only one command line (\textit{hard to configure}).
-Finally, our approach leverages the pre-commit hook capabilities of modern source code version control and therefore, integrates itself at the heart of the programmers workflow (\textit{little to no integration of these tools in the day-to-day workflow}).
+In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) that focuses on preventing the insertion of clones in the first place at commit time, more particularly by  using pre-commit hooks capabilities of modern source code version control systems. A pre-commit hook is a process that one can implement to receive the latest modification to the source code done by a given developer just before the code reaches the central repository.  PRECINCT intercepts this modification and analyses its  content to see whether a suspicious clone has been introduced or not. A flag is raised if a code fragment is suspected to be a clone of an exiting code segment. In fact, PRECINCT itself is a pre-commit hook that detects clones that might have been inserted in the latest changes with regard to the rest of the source code. This said, only a fraction of the code is analysed and PRECINCT reduces the output by 70\%, compared to leading clone detection techniques such as \cite{Cordy2011}. Moreover, the detected clones are presented using a classical 'diff' output that developers are familiar with.  PRECINCTS is easy to use and configure. It only takes  one command line to configure PRECINCT. PRECINCT is also well integrated with the workflow of the developers since it leverages the pre-commit hook capability of modern source code version control systems such as Git and Jira.
 
-We assessed the capabilities of PRECINCT in terms of precision and recall on seven systems developed independently with a wide range of technologies and purposes.
-The validation demonstrates that our approach detects near-miss software clones before they reach the source version system with a 100\% precision and a 93\% recall while increasing the size of the repository by only 3\% to 5\%.
+We evaluated the effectiveness of PRECINCT using precision and recall on seven systems developed independently with a wide range of technologies. The results show that PRECINCT detects near-miss software clones before they reach the source version system with a 100\% precision and a 93\% recall while increasing the size of the repository by only 3\% to 5\%.
 
-The rest of this paper is organized as follows: In Section~\ref{sec:Related Works} we present the works related to PRECINCT and with a particular attention of Nicad.
-Then, in Section~\ref{sec:The PRECINCT Approach} we present the PRECINCT approach and Section~\ref{sec:Experimentations} shows the experimentations we conduct to assess the capacities of PRECINCT.
-Finally, we propose some concluding remarks in Section~\ref{sec:Conclusion}.
+The rest of this paper is organized as follows: In Section~\ref{sec:Related Work}, we present the studies related to PRECINCT, with a particular emphasis on Nicad \cite{Cordy2011}, used to build PRECINCT. Then, in Section~\ref{sec:The PRECINCT Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of  Section~\ref{sec:Experimentations}.
+Finally, we propose concluding remarks in Section~\ref{sec:Conclusion}.
 
 \section{Related Works}
 \label{sec:Related Works}
