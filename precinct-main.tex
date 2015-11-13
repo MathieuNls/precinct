@@ -70,7 +70,7 @@ In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) 
 
 We evaluated the effectiveness of PRECINCT using precision and recall on seven systems developed independently with a wide range of technologies. The results show that PRECINCT detects near-miss software clones before they reach the source version system with a 100\% precision and a 93\% recall while increasing the size of the repository by only 3\% to 5\%.
 
-The rest of this paper is organized as follows: In Section~\ref{sec:Related Work}, we present the studies related to PRECINCT, with a particular emphasis on Nicad \cite{Cordy2011}, used to build PRECINCT. Then, in Section~\ref{sec:The PRECINCT Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of  Section~\ref{sec:Experimentations}.
+The rest of this paper is organized as follows: In Section~\ref{sec:Related Work}, we present the studies related to PRECINCT, with a particular emphasis on NICAD (Accurate Detection of Near-miss Intentional Clones) \cite{Cordy2011}, used to build PRECINCT. Then, in Section~\ref{sec:The PRECINCT Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of  Section~\ref{sec:Experimentations}.
 Finally, we propose concluding remarks in Section~\ref{sec:Conclusion}.
 
 \section{Related Works}
@@ -88,7 +88,7 @@ Finally, we propose concluding remarks in Section~\ref{sec:Conclusion}.
     \caption{ Overview of the PRECINCT Approach.\label{fig:precinct-approach}}
 \end{figure*}
 
-The PRECINCT approach is composed of six steps. The first step is the commit step where developers send their latest change to the central repository and the last step is the reception of the commit by the central repository. The second step is the pre-commit hook which kicks in as the first operation when one wants to commit. The pre-commit hook has access to the changes in terms of files that have been modified, more specifically, the lines that have been modified. The modified lines of the files are sent to TXL\cite{Cordy2006a} for block extraction. Then, the blocks are compared to previously extracted blocks in order to identify candidate clones  using Nicad\cite{Cordy2011}. Finally, the output of Nicad is further refined and presented to the user for a decision round. These steps are discussed in more detail in the following subsections.
+The PRECINCT approach is composed of six steps. The first step is the commit step where developers send their latest change to the central repository and the last step is the reception of the commit by the central repository. The second step is the pre-commit hook which kicks in as the first operation when one wants to commit. The pre-commit hook has access to the changes in terms of files that have been modified, more specifically, the lines that have been modified. The modified lines of the files are sent to TXL\cite{Cordy2006a} for block extraction. Then, the blocks are compared to previously extracted blocks in order to identify candidate clones  using NICAD\cite{Cordy2011}. Finally, the output of NICAD is further refined and presented to the user for a decision round. These steps are discussed in more detail in the following subsections.
 
 \subsection{Commit}
 \label{sub:Commit}
@@ -194,35 +194,24 @@ In summary, this step receives the files and lines, modified by the latest chang
 \subsection{Compare Extracted Blocks}
 \label{sub:Compare Extracted Blocks}
 
-In order to compare the extracted blocks and detect potential clones we could only rely on text-based techniques.
-Indeed, lexical and syntactic techniques would be of no help as they require a complete program to work, a program that compiles.
-In the relatively wide-range of tool and technics that exist to detect clone by considering code as text \cite{Johnson1993,Johnson1994,Marcus,Manber1994,StephaneDucasse,Wettel2005}, we choose NICAD \cite{Cordy2011} for several reasons.
-First NICAD is built on top of TXL and as we also use TXL on the previous step, the integration between the step was made easy.
-Second, NICAD, is able to detect all types of clones.
+In order to compare the extracted blocks and detect potential clones we can only resort to text-based techniques. This is because lexical and syntactic analysis approaches (alternatives to text-based compariosn) would require a complete program to work, a program that compiles. In the relatively wide-range of tool and techniques that exist to detect clones by considering code as text \cite{Johnson1993,Johnson1994,Marcus,Manber1994,StephaneDucasse,Wettel2005}, we select NICAD as the main text-based method for comparing clones \cite{Cordy2011} for several reasons. First, NICAD is built on top of TXL, which we also used TXL in the previous step. Second, NICAD is able to detect all types of clones.
 
-NICAD (Accurate Detection of Near-miss Intentional Clones) works in three phases: \textit{Extraction}, \textit{Comparison} and \textit{Reporting}.
-During the \textit{Extraction} phase in all potential clones are identified, pretty-printed and extracted.
-We do not use the \textit{Extraction} phase of NICAD as it has been built to work on programs that are syntactically correct and changesets are not.
-We replaced NICAD's \textit{Extraction} phase by our own processes described in the previous section.
+NICAD  works in three phases: \textit{Extraction}, \textit{Comparison} and \textit{Reporting}. During the \textit{Extraction} phase. all potential clones are identified, pretty-printing, and extracted. We do not use the \textit{Extraction} phase of NICAD as it has been built to work on programs that are syntactically correct, which is not the case of changesets. We replaced NICAD's \textit{Extraction} phase by our own tools, described in the previous section.
 
 In the \textit{Comparison} phase, extracted blocks are transformed, clustered and compared in order to find potential clones.
 Using TXL sub-programs, blocks go through a process called pretty-printing where they are stripped of formatting and comments.
-Indeed, when code cloned, some comments, indentation or spacing are changed according to the new context this code will be used in.
-This pretty-printing process ensures that all code will have the same spacing and formatting and ease the comparison.
+When code fragments are cloned, some comments, indentation or spacing are changed according to the new context where the new code is used. This pretty-printing process ensures that all code will have the same spacing and formatting and ease the comparison.
 Furthermore, in the pretty-printing process, statements can be broken down into several lines.
 Table~\ref{tab:pretty-printing} shows how this can improve the accuracy of clone detection with three \texttt{for} statements, \texttt{ for (i=0; i<10; i++)}, \texttt{for (i=1; i<10; i++)} and \texttt{ for (j=2; j<100; j++)}.
-The pretty-printing allows NICAD to detect segment 1 and 2 as a clone pair because only the initialization of $i$ changed.
-This specific example would not have been marked as a clone by other line based tools we tested such as Duploc\cite{Ducasse1999}.
+The pretty-printing allows NICAD to detect Segments 1 and 2 as a clone pair because only the initialization of $i$ changed.
+This specific example would not have been marked as a clone by other  tools we tested such as Duploc\cite{Ducasse1999}.
 In addition to the pretty-printing, code can be normalized and filtered to detect different classes of clones and match user preferences.
 
 \input{pretty-printing-table.tex}
 
-Finally, the extracted, pretty-printed, normalized and filtered blocks are marked as potential clones using a Longest Common Subsequence (LCS) algorithm\cite{Hunt1977}.
-Then, a percentage of unique statement can be computed and, depending a given threshold (see Section \ref{sec:Experimentations}), the blocks are marked as clones.
+Finally, the extracted, pretty-printed, normalized and filtered blocks are marked as potential clones using a Longest Common Subsequence (LCS) algorithm\cite{Hunt1977}. Then, a percentage of unique statements can be computed and, depending on a given threshold (see Section \ref{sec:Experimentations}), the blocks are marked as clones.
 
-The last step of NICAD, which acts as our clone comparison engine, is the \textit{reporting}.
-However, we wanted PRECINCT to address the \textit{massive output} concern and  implemented our own reporting system which also falls into the \textit{workflow} of developers.
-This reporting system is the subject of the next section.
+The last step of NICAD, which acts as our clone comparison engine, is the \textit{reporting}. However, to prevent PRECINCT from outputting  a large number of data (an issue from which many clone detection techniques face), we  implemented our own reporting system, which is also well embedded with wthe workflow of developers. This reporting system is the subject of the next section.
 
 As a summary, this step receives potentially expanded and balanced blocks from the extraction step.
 Then, the blocks are pretty-printed, normalized, filtered and fed to an LCS algorithm in order to detect potential clones.
@@ -230,16 +219,10 @@ Then, the blocks are pretty-printed, normalized, filtered and fed to an LCS algo
 \subsection{Output and Decision}
 \label{sub:Output and Decision}
 
-In this final step, we report the result of the clone detection with regards to the latest changes of the developer.
-The process here is very simple.
-Every change made by the developers has been through the previous steps and might have been marked as clones to another part of the system at hand.
-For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure X.
+In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer. The process is straightforward. Every change made by the developers has been through the previous steps and might have been marked as a potential clone. For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure X.
 
 (I) Inspect will cause a diff-like visualization of the suspected clones (Figure Y) while (D) disregard will simply ignore the finding.
-To integrate PRECINCT in the workflow of developer will also propose the (R) remove option.
-This option will simply remove the suspected file from the commit that is about to be sent to the central repository.
-Also, if the user types an option key twice, e.g. II, DD or RR, then, the option will be applied to files.
-For instance, if the developer type DD at any one point, all the findings will be disregarded and the commit will be allowed to go through.
+To integrate PRECINCT in the workflow of the developer we also propose the  remove option (R). This option will simply remove the suspected file from the commit that is about to be sent to the central repository. Also, if the user types an option key twice, e.g. II, DD or RR, then, the option will be applied to files. For instance, if the developer types DD at any one point, the results output by PRECINCT will be disregarded and the commit will be allowed to go through. We believe that this simple mechanism will encourage developers to use PRECINCT like they would use any other feature of Git (or any other control version system).
 
 
 
