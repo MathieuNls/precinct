@@ -9,6 +9,7 @@
 \usepackage{tikz}
 \usepackage{listings}
 \usepackage[linesnumbered]{algorithm2e}
+\usepackage{tikz}
 
 \definecolor{bblue}{HTML}{4F81BD}
 \definecolor{rred}{HTML}{C0504D}
@@ -45,7 +46,7 @@ abdelw@ece.concordia.ca}}
 Software clones are considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades.
 Interestingly, most existing techniques focus on detecting clones after they are inserted in the code.
 In this paper, we take another look at the clone detection problem by designing a novel approach for preventing the insertion of clones in the first place. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time),  detects efficiently  near-miss software clones at commit time by means of pre-commit hooks.
-This way, changes to the code are analysed and suspicious copies are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to seven systems developed independently shows that PRECINCT achieves 100\% precision and 93\% recall.
+This way, changes to the code are analysed and suspicious copies are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to three systems developed independently shows that PRECINCT would have prevent 92.4\% of clone insertion.
 
 
 
@@ -87,7 +88,7 @@ It only takes  one command line to configure PRECINCT.
 PRECINCT is also well integrated with the workflow of the developers since it leverages the pre-commit hook capability of modern source code version control systems such as Git and Jira.
 
 We evaluated the effectiveness of PRECINCT using precision and recall on seven systems developed independently with a wide range of technologies.
-The results show that PRECINCT detects near-miss software clones before they reach the source version system with a 100\% precision and a 93\% recall while increasing the size of the repository by only 3\% to 5\%.
+The results show that PRECINCT prevents near-miss software clones to reach the source version system with a 92.4\% accuracy while increasing the size of the repository by only 3\% to 5\%.
 
 The rest of this paper is organized as follows: In Section~\ref{sec:Related Work}, we present the studies related to PRECINCT, with a particular emphasis on NICAD \cite{Cordy2011}, used to build PRECINCT. Then, in Section~\ref{sec:The PRECINCT Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of  Section~\ref{sec:Experimentations}.
 Finally, we propose concluding remarks in Section~\ref{sec:Conclusion}.
@@ -95,7 +96,45 @@ Finally, we propose concluding remarks in Section~\ref{sec:Conclusion}.
 \section{Related Works}
 \label{sec:Related Works}
 
-\cite{Lague}
+Clone detection is not a trivial activity.
+Researchers and practitioners have created plenty of approaches and tools in order to detect them efficiently.
+
+Text-based techniques use the code --- often raw (e.g. with comments) --- and compare sequences of code (blocks) to each other in order to identify potential clones.
+Johnson was the first to use fingerprints to detect clones\cite{Johnson1993,Johnson1994}.
+Blocks of code are hashed; producing fingerprints that can be compared.
+If two blocks share the same fingerprint, they are clones.
+Manber\cite{Manber1994}  and Ducasse\cite{Ducasse1999} refined the fingerprint technique by using leading keywords and dot-plots, respectively.
+
+Tree-matching and metrics are two sub-categories of syntactic analysis for clone detection. Syntactic analysis consists in building abstract syntax trees (AST) and analyses them with a set of dedicated metrics or searching identical sub-trees. Many approaches using AST have been published using sub-trees comparison: Baxter\cite{Baxter1998}, Wahler\cite{Wahler} or more recently Jian et al with Deckard\cite{Jiang2007}.
+Approaches using metrics on AST compare metrics computed on the AST to identify clones rather than the code itself \cite{Patenaude1999, Balazinska}.
+
+Another approach to detect clone is to use static analysis and leverage the semantics of the program at hand to improve the detection.
+These techniques rely on program dependency graphs where node are statements and edges dependencies.
+Then, finding a clone become a matter of finding identical sub-groups in the program dependency graph.
+Krinke\cite{Krinke2001},  Gabel\cite{Gabel2008} are recent examples of program dependency graphs based techniques.
+
+Finally, many tools have been created using a lexical approach for clone detection.
+Here, the code is transformed into series of tokens.
+Then, if sub-series repeat themselves, it means that a clone is in the code.
+Famous tools using this technique include, but not limited to, Dup\cite{Baker}, CCFinder\cite{Kamiya2002} or CP-Miner\cite{Li2006}.
+
+Furthermore, numerous taxonomies have been published in an attempt to classify  clones and ease the research on clone detection\cite{Mayrand1996,Balazinska1999,Koschke2006,Bellon2007,NeilDavey,Kontogiannis,Kapser}.
+
+Other activities in clone-related research is their removal and management.
+Indeed, once detected, the next step will be to provide approaches to remove them in an automatic fashion or keep track of them if removal is not an option.
+All modern IDE provide the \textit{extract method} feature that replace a transforms a potentially copy-based block of code into a method and a call to the newly generated method\cite{Komondoor,higo2004refactoring}.
+More advanced techniques involve analyzing the output of CCFinder\cite{Bomarius2004} or program dependencies graphs\cite{higo2004refactoring} to automatically suggest a method that should go through the \textit{extract method} process.
+Codelink\cite{Toomim} and\cite{Duala-Ekoko2007}
+
+Interestingly enough, very few attempts have been made in preventing clone insertion in the first place.
+Lague et al conducted a very large empirical experiment with 10,000 over 3 years where developers where ask to use clone detection tools during the development process of a very large telecoms system \cite{Lague}.
+They found that while clones are being removed over time, using clone detection tools help improving the quality of the system as it prevent defects to reach the customer.
+Duala proposed to create clone region descriptor which describe clone regions within methods in a robust way that is independent from the exact text of the clone region or its location in a file. Then, using CRDs clone insertion can be prevented or clone segment can be edited all at once\cite{Duala-Ekoko2007,Duala-Ekoko2010}.
+
+PRECINCT aims to prevent clone insertion by integrating the clone detection, in a transparent manner, in the day-to-day development process.
+Also, our approach tries to minimize the majors concerns of developers about using clone detector.
+
+
 
 
 \section{The PRECINCT Approach}
@@ -132,7 +171,10 @@ These hooks can be used for all sorts of reasons (GIVE ONE OR TWO EXAMPLES).
 
 The pre-commit hook is run first, before one even types in a commit message. It is used to inspect the snapshot that is about to be committed.
 This is used to allow developers to check if they have not forgotten anything, to run tests, or to examine whatever the need to inspect the code.
-Exiting [WAHAB: I DO NOT UNDERSTAND THIS SENTENCE] non-zero from this hook aborts the commit, although one can bypass it with a no-verify commit (a feature that exists in Git and other version systems).
+% Exiting [WAHAB: I DO NOT UNDERSTAND THIS SENTENCE] non-zero from this hook aborts the commit, although one can bypass it with a no-verify commit (a feature that exists in Git and other version systems).
+Depending on the exit status of the hook, the commit will be aborted and not pushed to the central repository.
+Also, developers can choose to ignore the pre-hook by using \texttt{git commit --no-verify} instead of \texttt{git commit}.
+This can be useful in case of emergency bug fix where the code has to reach the central repository as quick as possible.
 Developers can do things like check for code style (run lint or something equivalent), check for trailing white spaces (the default hook does exactly this), or check for appropriate documentation on new methods.
 
 PRECINCT is a set of bash scripts where the entry point of these scripts lies in the pre-commit hooks. Pre-commit hooks are easy to create and implement as depicted in Listing~\ref{gitprehook}.
@@ -226,8 +268,8 @@ For each extracted block, we check if the current block overrides (replaces) a p
 In such a case, we delete the previous block as it does not represent the current version of the program anymore (Line 5).
 Also, we have an optional step in PRECINCT defined in Line 4. The compare\_history is a condition to delete overridden blocks.
 
-[WAHAB: I DON'T UNDERSTAND THE FOLLOWING 3 SENTENCES. PLEASE REPHRASE]
-We believe that overridden blocks have been so far a good reason (bug, default, removed features, \ldots) and if a newly inserted block matches an old one, it could be worth knowing to improve the quality of the system at hand.
+% [WAHAB: I DON'T UNDERSTAND THE FOLLOWING 3 SENTENCES. PLEASE REPHRASE]
+We believe that deleted blocks have been deleted for a good reason (bug, default, removed features, \ldots) and if a newly inserted block matches an old one, it could be worth knowing in order to improve the quality of the system at hand.
 This feature is deactivated by default.
 
 In summary, this step receives the files and lines, modified by the latest changes made by the developer and produces an up to date block representation of the system at hand. The blocks can be analysed in the next step to discover potential clones.
@@ -268,16 +310,136 @@ Then, the blocks are pretty-printed, normalized, filtered and fed to an LCS algo
 In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer. The process is straightforward. Every change made by the developers has been through the previous steps and might have been marked as a potential clone. For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure X.
 
 (I) Inspect will cause a diff-like visualization of the suspected clones (Figure Y) while (D) disregard will simply ignore the finding.
-To integrate PRECINCT in the workflow of the developer we also propose the  remove option (R). This option will simply remove the suspected file from the commit that is about to be sent to the central repository. Also, if the user types an option key twice, e.g. II, DD or RR, then, the option will be applied to files. For instance, if the developer types DD at any one point, the results output by PRECINCT will be disregarded and the commit will be allowed to go through. We believe that this simple mechanism will encourage developers to use PRECINCT like they would use any other feature of Git (or any other control version system).
-
-
-
-
+To integrate PRECINCT in the workflow of the developer we also propose the  remove option (R). This option will simply remove the suspected file from the commit that is about to be sent to the central repository.
+Also, if the user types an option key twice, e.g. II, DD or RR, then, the option will be applied to all files.
+For instance, if the developer types DD at any one point, the results output by PRECINCT will be disregarded and the commit will be allowed to go through. We believe that this simple mechanism will encourage developers to use PRECINCT like they would use any other feature of Git (or any other control version system).
 
 
 
 \section{Experimentations}
 \label{sec:Experimentations}
+
+In this section, we show the effectiveness of JCHARMING to
+reproduce bugs in seven open source systems\footnote{The programs used and instructions to reproduce the experiments are made available for download from https://research.mathieu-nayrolles.com/precinct/}.
+
+The aim of the case study is to answer the following question: \textit{Can we efficiently integrate clone detection in developer's workflow ?}
+
+\subsection{Targeted System}
+\label{sub:Targeted System}
+
+Table~\ref{tab:sut} shows the systems and their characteristics in terms of files and Kilo Line of Code (KLOC) at current version and programming language.
+
+\begin{table}[]
+\centering
+\caption{List of Target Systems in Terms of Files and Kilo Line of Code (KLOC) at current version and Language}
+\label{tab:sut}
+\resizebox{0.5\textwidth}{!}{%
+\begin{tabular}{c|c|c|c|c}
+SUT        & Revisions & Files & KLoC & Language \\ \hline\hline
+Monit      & 826       & 264   & 107  & c        \\ \hline
+jhotdraw   & 735       & 1984  & 44   & java     \\ \hline
+dnsjava    & 1637      & 233   & 47   & java     \\ \hline
+\end{tabular}
+}
+\end{table}
+
+Monit is a small Open Source utility for managing and monitoring Unix systems.
+Monit conducts automatic maintenance and repair and can execute meaningful causal actions in error situations.
+This system is written in c and composed of 826 revisions, 264 files and 107 KLoC at the latest revision.
+We have chosen monit as a target system as it was one of the system NICAD was tested on.
+
+JHotDraw is a Java GUI framework for technical and structured Graphics.
+It has been developed as a ''design exercise'' but is already quite powerful. Its design relies heavily on some well-known design patterns.
+JHotDraw of 735 revisions, 1984 files and 44 KLoC at the latest revision.
+It is written and Java and it's often used by researcher as a test bench.
+JHotDraw was also used by NICAD's developers to evaluate their approach.
+
+Dnsjava \cite{Wellington2013} is a tool for the implementation of the DNS mechanisms in Java.
+This tool can be used for queries, zone transfers, and dynamic updates.
+It is not as large as the other two, but it still makes an interesting case subject because it has been well maintained for the past decade.
+Also, this tool is used in many other popular tools such as Aspirin, Muffin and
+Scarab.
+Dnsjava is composed of 1637 revisions, 233 files and 47 KLoC at the latest revision.
+We have chosen this system because we know it for using it before\cite{Nayrolles2015c}.
+
+\subsection{Process}
+\label{sub:Process}
+
+
+Figure \ref{fig:precinct-branching} shows how we conduct our experiments to validate the efficiency of PRECINCT.
+
+\begin{figure}
+  \centering
+    \includegraphics[width=0.3\textwidth]{media/branch.png}
+    \caption{PRECINCT Branching.\label{fig:precinct-branching}}
+\end{figure}
+
+As our approach relies on commit pre-hook to detect clone during the development process, we had to find a way to \textit{replay} past commits.
+To do so, we create \textit{cloned} our test subject and then, create a new branch called \textit{PRECINCT\_EXT}.
+When created, this branch is reinitialized at the initial state of the project (the first commit) and each commit can be replayed as they have originally been.
+At each commit, we store the time is taken for PRECINCT and NICAD to run as same as the number clones pairs detected.
+The clones pairs detected are near-miss exact (type 3-1) clones with a maximum line difference of 30\% as explained in~\ref{tab:pretty-printing}.
+We choose to focus on type 3-1 as cloning is often intentional \cite{Kim2005} and type 3-1 are hard to detect otherwise.
+Also, our clone detection engine specializes in type 3-1.
+
+Finally, we store the amount of clone pairs that would not have been inserted into the code and reach the central code repository if the developer had followed PRECINCT recommendation.
+
+\input{tables-result}
+
+\subsection{Results}
+\label{sub:Results}
+
+Figures~\ref{fig:r1},~\ref{fig:r2},~\ref{fig:r3} show the results of our experiments in terms of clones pair detected per revision of our three test subjects: Monit, jhotdraw and dnsjava, respectively.
+The blue line symbolizes the clone detection done by NICAD while the red line shows the clone pairs that would have reach the central source repository if the developer had accepted PRECINCT recommendations.
+
+There are 85 clone pairs in Monit at the first revision and this number stay stable until revision 100.
+From revision 100 to 472 detected clone pairs vary between 68 and 88 before reaching 219 at revision 473.
+The count of clone pairs goes down to 122 at revision 491 and goes slowly to 128 at the last revision.
+
+PRECINCT was able to detect 96.1\% of the clone pairs detected by NICAD (123/128) with 100\% recall while executing in average in .9 second.
+
+JHotDraw starts with 196 clone pairs at revision 1 and encounter a pick to 2048 at revision 180.
+Then the count continues to go up until revision 685 and 686 where the count of pairs is 1229 before picking at 6538 and more from revision 687 to 721.
+
+PRECINCT was able to detect 98.3\% of the clone pairs detected by NICAD (6490/6599) with 100\% recall while executing in average in 1.7 second.
+
+For dnsjava, the count of pairs starts high 258 and goes up until revison 70 where it reaches 165.
+Another quick drop is observed at revision 239 where we found only 25 clone pairs.
+The amount of clone pairs stays stable until revision 1030 where it reaches 273.
+
+PRECINCT was able to detect 82.8\% of the clone pairs detected by NICAD (226/273) with 100\% recall while executing in average in 1.1 second.
+
+Overall, PRECINCT would have been able to prevent 92.4\% of clone pairs to reach the central source code repository while executing more than twice as fast as NICAD (1.2s versus 3.8s).
+The speed difference between NICAD and PRECINCT comes from the fact that NICAD is not an incremental approach.
+Indeed, for each version, it has to extract all the code blocks and then, it compares all the pairs with each other ($n^2$).
+On the other hand, PRECINCT only extracts blocks when they are modified and only compare what have been modified to the rest of the program.
+
+The 7.3\% accuracy difference between NICAD and PRECINCT can be explained by the fact that sometimes developers commit code that do not compile.
+Such commit will still count as a revision but TXL will fail to extract blocks that do not comply with the target language syntax.
+While NICAD also fails in such a case, the disadvantage of PRECINCT come from the fact that the failed block is saved and used as reference until it is changed by a correct one in another commit.
+
+\section{Threats to Validity}
+\label{sec:Threats to Validity}
+
+The selection of SUTs is one of the common threats to validity for approaches aiming to improve the understanding of program's behavior.
+It is possible that the selected programs share common properties that we are not aware of and therefore, invalidate our results.
+However, the SUTs analyzed by PRECINCT are the same as the ones used in similar studies.
+Moreover, the SUTs vary in terms of purpose, size and history.
+
+Another threat to validity lies in the way we have selected the versions used in this study.
+We selected version randomly to avoid any bias.
+One may argue that a better approach would be to select revision based on size or diversity.
+However, we believe that our approach do not depends on the characteristics of the revision but on the characteristics of the SUT.
+
+In addition, we see a threat to validity that stems from the fact that we only used open source systems. The results may not be generalizable to industrial systems. We intend to undertake these studies in future work.
+
+The programs we used in this study are all based on the Java, c and python programming languages. This can limit the generalization of the results. However, similar to Java, c, python and wsdl if one writes a TXL grammar --- which can be a relatively hard work --- in order to make PRECINCT available for a new language.
+
+Finally, we use NICAD as clones detection engine but we believe that PRECINCT is generalizable for any clone detection engine.
+
+In conclusion, internal and external validity have both been minimized by choosing a relatively large set of different systems and using input data that can be found in other programming languages.
+
+
 
 \section{Conclusion}
 \label{sec:Conclusion}

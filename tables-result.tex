@@ -1,0 +1,53 @@
+\begin {figure*}%[!hbtp]
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+      scale only axis, % The height and width argument only apply to the actual axis
+height=5cm,
+width=0.9\textwidth]
+    \addplot table [smooth,blue,mark=none,x=revision,y=clones,col sep=comma] {data/monit};
+    \addlegendentry{Monit Clones}
+
+    \addplot table [smooth,blue,mark=none,x=revision,y=prevented,col sep=comma] {data/monit};
+    \addlegendentry{Monit w/ PRECINCT}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Monit Clone evolution over versions\label{fig:r1}}
+\end{figure*}
+
+\begin {figure*}%[!hbtp]
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+      scale only axis, % The height and width argument only apply to the actual axis
+height=5cm,
+width=0.9\textwidth]
+  \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/jhotdraw};
+    \addlegendentry{jhotdraw Clones}
+
+    \addplot table [smooth,red,mark=none,x=revision,y=prevented,col sep=comma] {data/jhotdraw};
+    \addlegendentry{jhotdraw w/ PRECINCT}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{jhotdraw Clone evolution over versions\label{fig:r2}}
+\end{figure*}
+
+\begin {figure*}%[!hbtp]
+\centering
+\begin{tikzpicture}
+    \begin{axis}[
+      scale only axis, % The height and width argument only apply to the actual axis
+height=5cm,
+width=0.9\textwidth]
+  \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/dnsjava};
+    \addlegendentry{dnsjava Clones}
+
+    \addplot table [smooth,red,mark=none,x=revision,y=prevented,col sep=comma] {data/dnsjava};
+    \addlegendentry{dnsjava w/ PRECINCT}
+
+    \end{axis}
+    \end{tikzpicture}
+    \caption{dnsjava Clone evolution over versions\label{fig:r3}}
+\end{figure*}
