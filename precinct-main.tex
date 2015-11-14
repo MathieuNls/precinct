@@ -46,7 +46,7 @@ abdelw@ece.concordia.ca}}
 Software clones are considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades.
 Interestingly, most existing techniques focus on detecting clones after they are inserted in the code.
 In this paper, we take another look at the clone detection problem by designing a novel approach for preventing the insertion of clones in the first place. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time),  detects efficiently  near-miss software clones at commit time by means of pre-commit hooks.
-This way, changes to the code are analysed and suspicious copies are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to three systems developed independently shows that PRECINCT would have prevent 92.4\% of clone insertion.
+This way, changes to the code are analyzed and suspicious copies are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to three systems developed independently shows that PRECINCT would have prevented 92.4\% of clone insertion.
 
 
 
@@ -390,9 +390,9 @@ Finally, we store the amount of clone pairs that would not have been inserted in
 \label{sub:Results}
 
 Figures~\ref{fig:r1},~\ref{fig:r2},~\ref{fig:r3} show the results of our experiments in terms of clones pair detected per revision of our three test subjects: Monit, jhotdraw and dnsjava, respectively.
-The blue line symbolizes the clone detection done by NICAD while the red line shows the clone pairs that would have reach the central source repository if the developer had accepted PRECINCT recommendations.
+The blue line symbolizes the clone detection done by NICAD while the red line shows the clone pairs that would have reached the central source repository if the developer had accepted PRECINCT recommendations.
 
-There are 85 clone pairs in Monit at the first revision and this number stay stable until revision 100.
+There are 85 clone pairs in Monit at the first revision and this number stays stable until revision 100.
 From revision 100 to 472 detected clone pairs vary between 68 and 88 before reaching 219 at revision 473.
 The count of clone pairs goes down to 122 at revision 491 and goes slowly to 128 at the last revision.
 
@@ -401,13 +401,13 @@ PRECINCT was able to detect 96.1\% of the clone pairs detected by NICAD (123/128
 JHotDraw starts with 196 clone pairs at revision 1 and encounter a pick to 2048 at revision 180.
 Then the count continues to go up until revision 685 and 686 where the count of pairs is 1229 before picking at 6538 and more from revision 687 to 721.
 
-PRECINCT was able to detect 98.3\% of the clone pairs detected by NICAD (6490/6599) with 100\% recall while executing in average in 1.7 second.
+PRECINCT was able to detect 98.3\% of the clone pairs detected by NICAD (6490/6599) with 100\% recall while executing on average in 1.7 second.
 
-For dnsjava, the count of pairs starts high 258 and goes up until revison 70 where it reaches 165.
+For dnsjava, the count of pairs starts high 258 and goes up until revision 70 where it reaches 165.
 Another quick drop is observed at revision 239 where we found only 25 clone pairs.
 The amount of clone pairs stays stable until revision 1030 where it reaches 273.
 
-PRECINCT was able to detect 82.8\% of the clone pairs detected by NICAD (226/273) with 100\% recall while executing in average in 1.1 second.
+PRECINCT was able to detect 82.8\% of the clone pairs detected by NICAD (226/273) with 100\% recall while executing on average in 1.1 second.
 
 Overall, PRECINCT would have been able to prevent 92.4\% of clone pairs to reach the central source code repository while executing more than twice as fast as NICAD (1.2s versus 3.8s).
 The speed difference between NICAD and PRECINCT comes from the fact that NICAD is not an incremental approach.
@@ -415,7 +415,7 @@ Indeed, for each version, it has to extract all the code blocks and then, it com
 On the other hand, PRECINCT only extracts blocks when they are modified and only compare what have been modified to the rest of the program.
 
 The 7.3\% accuracy difference between NICAD and PRECINCT can be explained by the fact that sometimes developers commit code that do not compile.
-Such commit will still count as a revision but TXL will fail to extract blocks that do not comply with the target language syntax.
+Such commit will still count as a revision, but TXL will fail to extract blocks that do not comply with the target language syntax.
 While NICAD also fails in such a case, the disadvantage of PRECINCT come from the fact that the failed block is saved and used as reference until it is changed by a correct one in another commit.
 
 \section{Threats to Validity}
