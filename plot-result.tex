@@ -11,10 +11,13 @@
     ylabel={Clones},
     xmin=0]
     \addplot table [smooth,blue,mark=none,x=revision,y=clones,col sep=comma] {data/monit};
-    \addlegendentry{Monit Clones}
+    \addlegendentry{NICAD Detection}
 
     \addplot table [smooth,blue,mark=none,x=revision,y=prevented,col sep=comma] {data/monit};
-    \addlegendentry{Monit w/ PRECINCT}
+    \addlegendentry{PRECINCT Detection}
+
+    \addplot table [smooth,green,mark=none,x=revision,y=detected,col sep=comma] {data/monit};
+    \addlegendentry{Remaining Clones}
 
     \end{axis}
     \end{tikzpicture}
@@ -34,10 +37,13 @@
     ylabel={Clones},
     xmin=0]
   \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/jhotdraw};
-    \addlegendentry{jhotdraw Clones}
+      \addlegendentry{NICAD Detection}
+
+    \addplot table [smooth,green,mark=none,x=revision,y=detected,col sep=comma] {data/jhotdraw};
+    \addlegendentry{PRECINCT Detection}
 
     \addplot table [smooth,red,mark=none,x=revision,y=prevented,col sep=comma] {data/jhotdraw};
-    \addlegendentry{jhotdraw w/ PRECINCT}
+    \addlegendentry{Remaining Clones}
 
     \end{axis}
     \end{tikzpicture}
@@ -57,10 +63,13 @@
     ylabel={Clones},
     xmin=0]
   \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/dnsjava};
-    \addlegendentry{dnsjava Clones}
+    \addlegendentry{NICAD Detection}
+
+    \addplot table [smooth,green,mark=none,x=revision,y=detected,col sep=comma] {data/dnsjava};
+    \addlegendentry{PRECINCT Detection}
 
     \addplot table [smooth,red,mark=none,x=revision,y=prevented,col sep=comma] {data/dnsjava};
-    \addlegendentry{dnsjava w/ PRECINCT}
+    \addlegendentry{Remaining Clones}
 
     \end{axis}
     \end{tikzpicture}

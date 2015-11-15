@@ -275,12 +275,12 @@ Moreover, the clone detection in PRECINCT is less intensive than NICAD as we onl
 \label{sub:Output and Decision}
 
 In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer. The process is straightforward. Every change made by the developers has been through the previous steps and might have been marked as a potential clone. For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure \ref{fig:hook}. In comparison to this simple and interactive output, NICAD outputs each and every details of the detection such as total of potential clones, total of lines, total of unique line text chars, total unique lines, total comparisons and so on.
-Then the potential clones are stored in XML files that can be viewed using an Internet browser or a text editor. 
+Then the potential clones are stored in XML files that can be viewed using an Internet browser or a text editor.
 
 \begin{figure}
   \centering
     \includegraphics[width=0.5\textwidth]{media/commit.png}
-    \caption{PRECINCT output when replaying commit \texttt{710b6b4} of monit.\label{fig:hook}}
+    \caption{PRECINCT output when replaying commit \texttt{710b6b4} of Monit system used in the case study.\label{fig:hook}}
 \end{figure}
 
 (I) Inspect will cause a diff-like visualization of the suspected clones while (D) disregard will simply ignore the finding.
@@ -290,7 +290,7 @@ For instance, if the developer types DD at any one point, the PRECINCT's results
 
 
 
-\section{Experimentations}
+\section{Case study}
 \label{sec:Experimentations}
 
 In this section, we show the effectiveness of PRECINCT to
@@ -343,12 +343,13 @@ Figure \ref{fig:precinct-branching} shows the process we followed to validate th
     \caption{PRECINCT Branching.\label{fig:precinct-branching}}
 \end{figure}
 
-As our approach relies on commit pre-hooks to detect possible clones during the development process (more particularly at commit time), we had to find a way to \textit{replay} past commits. To do so, we  \textit{cloned} our test subjects, and then created a new branch called \textit{PRECINCT\_EXT}. 
+As our approach relies on commit pre-hooks to detect possible clones during the development process (more particularly at commit time), we had to find a way to \textit{replay} past commits. To do so, we  \textit{cloned} our test subjects, and then created a new branch called \textit{PRECINCT\_EXT}.
 When created, this branch is reinitialized at the initial state of the project (the first commit) and each commit can be replayed as they have originally been. At each commit, we store the time taken for PRECINCT to run as well as the number of detected clone pairs. We also store the size of the output in terms of number of lines of code, output by our method.
 
-To validate the results obtained by PRECINCT, we needed to use a reliable clone detection approach to which we compare our results. For this, we use NICAD because of its popularity, high accuracy, and availability \cite{Cordy2011}. This means, we run NICAD on the revisions of the system to obtain the clones. We use NICAD clones as a baseline for comparing the results obtained by PRECINCT. 
+To validate the results obtained by PRECINCT, we needed to use a reliable clone detection approach to which we compare our results. For this, we use NICAD because of its popularity, high accuracy, and availability \cite{Cordy2011}. This means, we run NICAD on the revisions of the system to obtain the clones. We use NICAD clones as a baseline for comparing the results obtained by PRECINCT.
 
-We show the result of detecting Type 3 clones with a maximum line difference of 30\% as discussed in Table~\ref{tab:pretty-printing}. As discussed in the introductory section, we chose to focus on Type 3 clones because they are more challenging to detect than Type 1 and 2. PRECINCT detects Type 1 and 2 too so does NICAD. For the time being, PRECINCT is not designed to detect Type 4 clones. These clones use different implementations. Detecting Type 4 clones is part of future work.
+We show the result of detecting Type 3 clones with a maximum line difference of 30\% as discussed in Table~\ref{tab:result}.
+As discussed in the introductory section, we chose to focus on Type 3 clones because they are more challenging to detect than Type 1 and 2. PRECINCT detects Type 1 and 2 too so does NICAD. For the time being, PRECINCT is not designed to detect Type 4 clones. These clones use different implementations. Detecting Type 4 clones is part of future work.
 
 % [WAHAB: YOU NEED TO DEFINE PRECISION AND RECALL]
 
@@ -381,7 +382,7 @@ Figures~\ref{fig:r1},~\ref{fig:r2},~\ref{fig:r3} show the results of our study i
 Table~\ref{tab:result} summarizes PRECINCT's results in terms of precision, recall, F$_{1}$-measure, execution time and output reduction.
 The first version of Monit contains 85 clone pairs and this number stays stable until Revision 100. From Revision 100 to 472 the detected clone pairs vary between 68 and 88 before reaching 219 at Revision 473.
 The number of clone pairs goes down to 122 at Revision 491 and decreases to 128 in the last revision. PRECINCT was able to detect 96.1\% (123/128) of the clone pairs that are detected by NICAD with a 100\% recall.
-It took in average around 1 second for PRECINCT to execute on a Debian 8 system with Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 8Gb of DDR3 memory. 
+It took in average around 1 second for PRECINCT to execute on a Debian 8 system with Intel(R) Core(TM) i5-2400 CPU @ 3.10GHz, 8Gb of DDR3 memory.
 It is also worth mentioning that the computer we used is equipped with SSD (Solid State Drive).
 This impacts the running time as clone detection is a file intensive operation.
 Finally, the PRECINCT was able to output 88.3\% less lines of code than NICAD.
@@ -420,7 +421,7 @@ In addition, we see a threat to validity that stems from the fact that we only u
 
 The programs we used in this study are all based on the Java, C and Python programming languages. This can limit the generalization of the results. However, similar to Java, C, Python, if one writes a TXL grammar for a new language --- which can be a relatively hard work --- then PRECINCT can work since PRECINT relies on TXL.
 
-Finally, we use NICAD as the code comparison engine. The accuracy of NICAD affects the accuracy of PRECINCT. This said, since NICAD has been tested on large systems, we are confident that it is a suitable engine for comparing code using TXL. Also, there is nothing that prevents from using other code comparisons engines, if need be. 
+Finally, we use NICAD as the code comparison engine. The accuracy of NICAD affects the accuracy of PRECINCT. This said, since NICAD has been tested on large systems, we are confident that it is a suitable engine for comparing code using TXL. Also, there is nothing that prevents from using other code comparisons engines, if need be.
 
 In conclusion, internal and external validity have both been minimized by choosing a set of three different systems, using input data that can be found in any programming languages and version systems (commit and changesets).
 
