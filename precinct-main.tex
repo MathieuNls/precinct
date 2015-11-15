@@ -375,7 +375,7 @@ F_1-measure = 2 * \frac{precision * recall}{precision + recall}
 \subsection{Results}
 \label{sub:Results}
 
-Figures~\ref{fig:r1},~\ref{fig:r2},~\ref{fig:r3} show the results of our study in terms of clone pairs that are detected per revision for our three subject systems: Monit, JHotDraw and Dnsjava. We compared our approach to NICAD that detects the clones after they are inserted. The blue line shows the clone detection performed by NICAD, the green line shows the clone detected by PRECINCT (again at commit time). The red line shows the clone pairs that have been missed by PRECINCT.
+Figures~\ref{fig:r1},~\ref{fig:r2},~\ref{fig:r3} show the results of our study in terms of clone pairs that are detected per revision for our three subject systems: Monit, JHotDraw and Dnsjava. We used as baseline for comparison the clone pairs detected by NICAD. The blue line shows the clone detection performed by NICAD. The green line shows the clone pairs detected by PRECINCT. The red line shows the clone pairs that have been missed by PRECINCT. As we can quickly see, the blue and green lines almost overlap, which indicates a good accuracy of the PRECINCT approach. 
 
 \input{table-result}
 
