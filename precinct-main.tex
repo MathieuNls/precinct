@@ -170,7 +170,7 @@ The pre-commit hook is run first, before one even types in a commit message. It 
 Depending on the exit status of the hook, the commit will be aborted and not pushed to the central repository.
 Also, developers can choose to ignore the pre-hook. In Git, for example, they will need to use the command \texttt{git commit --no-verify} instead of \texttt{git commit}.
 This can be useful in case of an urgent need for fixing a bug where the code has to reach the central repository as quickly as possible.
-Developers can do things like check for code style (run lint or something equivalent), check for trailing white spaces (the default hook does exactly this), or check for appropriate documentation on new methods.
+Developers can do things like check for code style, check for trailing white spaces (the default hook does exactly this), or check for appropriate documentation on new methods.
 
 PRECINCT is a set of bash scripts where the entry point of these scripts lies in the pre-commit hooks. Pre-commit hooks are easy to create and implement as depicted in Listing~\ref{gitprehook}.
 This pre-hook is shipped with Git, a popular version control system.
@@ -214,6 +214,8 @@ We have selected TXL for several reasons. First, TXL is easy to install and to i
 Second, it was relatively easy to create a grammar that accepts commits as input.
 This is because TXL is shipped with C, Java, Csharp, Python and WSDL grammars that define all the particularities of these languages, with the ability to customize these grammars to accept changesets (chunks of the modified source code that include the added, modified, and deleted lines) instead of the whole code.
 
+\input{algorithm}
+
 Algorithm~\ref{alg:extract} presents an overview of the ``extract" and ``save" blocks operations of PRECINCT. This algorithm receives as arguments, the changesets, the blocks that have been previously extracted and a boolean named compare\_history.
 Then, from Lines 1 to 9 lie the $for$ loop that iterates over the changesets. For each changeset (Line 2), we extract the blocks by calling the $~extract\_blocks(Changeset~cs)$ function.
 In this function, we expand our changeset to the left and to the right in order to have a complete block.
@@ -222,7 +224,7 @@ However, in Line 7 we can see the end of a block, but we do not have its beginni
 We do so by checking the block's beginning and ending (using \{ and \}) in C for example.
 Then, we send these expanded changesets to TXL for block extraction and formalization.
 
-\input{algorithm}
+
 
 
 For each extracted block, we check if the current block overrides (replaces) a previous block (Line 4).
@@ -276,7 +278,7 @@ Then the potential clones are stored in XML files that can be viewed using an In
 
 \begin{figure}
   \centering
-    \includegraphics[width=0.5\textwidth]{media/commit.png}
+    \includegraphics[width=0.4\textwidth]{media/commit.png}
     \caption{PRECINCT output when replaying commit \texttt{710b6b4} of monit.\label{fig:hook}}
 \end{figure}
 
@@ -287,7 +289,7 @@ For instance, if the developer types DD at any point, the PRECINCT's results wil
 
 
 
-\section{Experimentations}
+\section{Case Study}
 \label{sec:Experimentations}
 
 In this section, we show the effectiveness of PRECINCT for
@@ -336,7 +338,7 @@ Figure \ref{fig:precinct-branching} shows the process we followed to validate th
 
 \begin{figure}
   \centering
-    \includegraphics[width=0.3\textwidth]{media/branch.png}
+    \includegraphics[width=0.2\textwidth]{media/branch.png}
     \caption{PRECINCT Branching.\label{fig:precinct-branching}}
 \end{figure}
 
@@ -347,7 +349,7 @@ To validate the results obtained by PRECINCT, we needed to use a reliable clone 
 
 It may appear strange that we are using NICAD to validate our approach, knowing that our approach uses NICAD's code comparison engine. In fact, what we are assessing here is the ability for PRECINCT to detect clones at commit time using changsets. The major part of PRECINCT is the ability to  intercept code changes and build working code blocks that are fed to a code fragment engine (in our case NICAD's engine). PRECINCT can be build on the top of any other code comparison engine.
 
-We show the result of detecting Type 3 clones with a maximum line difference of 30\% as discussed in Table~\ref{tab:pretty-printing}. As discussed in the introductory section, we chose to report on Type 3 clones because they are more challenging to detect than Type 1 and 2. PRECINCT detects Type 1 and 2 too so does NICAD. For the time being, PRECINCT is not designed to detect Type 4 clones. These clones use different implementations. Detecting Type 4 clones is part of future work.
+We show the result of detecting Type 3 clones with a maximum line difference of 30\% as discussed in Table~\ref{tab:result}. As discussed in the introductory section, we chose to report on Type 3 clones because they are more challenging to detect than Type 1 and 2. PRECINCT detects Type 1 and 2 too so does NICAD. For the time being, PRECINCT is not designed to detect Type 4 clones. These clones use different implementations. Detecting Type 4 clones is part of future work.
 
 % [WAHAB: YOU NEED TO DEFINE PRECISION AND RECALL]
 
