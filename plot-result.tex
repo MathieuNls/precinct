@@ -3,8 +3,13 @@
 \begin{tikzpicture}
     \begin{axis}[
       scale only axis, % The height and width argument only apply to the actual axis
-height=5cm,
-width=0.9\textwidth]
+    height=5cm,
+    width=0.9\textwidth,
+    grid = both,
+    minor tick num=1,
+    xlabel={Revisions},
+    ylabel={Clones},
+    xmin=0]
     \addplot table [smooth,blue,mark=none,x=revision,y=clones,col sep=comma] {data/monit};
     \addlegendentry{Monit Clones}
 
@@ -13,7 +18,7 @@ width=0.9\textwidth]
 
     \end{axis}
     \end{tikzpicture}
-    \caption{Monit Clone evolution over versions\label{fig:r1}}
+    \caption{Monit Clone evolution over revisions\label{fig:r1}}
 \end{figure*}
 
 \begin {figure*}%[!hbtp]
@@ -21,8 +26,13 @@ width=0.9\textwidth]
 \begin{tikzpicture}
     \begin{axis}[
       scale only axis, % The height and width argument only apply to the actual axis
-height=5cm,
-width=0.9\textwidth]
+    height=5cm,
+    width=0.9\textwidth,
+    grid = both,
+    minor tick num=1,
+    xlabel={Revisions},
+    ylabel={Clones},
+    xmin=0]
   \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/jhotdraw};
     \addlegendentry{jhotdraw Clones}
 
@@ -31,7 +41,7 @@ width=0.9\textwidth]
 
     \end{axis}
     \end{tikzpicture}
-    \caption{jhotdraw Clone evolution over versions\label{fig:r2}}
+    \caption{jhotdraw Clone evolution over revisions\label{fig:r2}}
 \end{figure*}
 
 \begin {figure*}%[!hbtp]
@@ -39,8 +49,13 @@ width=0.9\textwidth]
 \begin{tikzpicture}
     \begin{axis}[
       scale only axis, % The height and width argument only apply to the actual axis
-height=5cm,
-width=0.9\textwidth]
+    height=5cm,
+    width=0.9\textwidth,
+    grid = both,
+    minor tick num=1,
+    xlabel={Revisions},
+    ylabel={Clones},
+    xmin=0]
   \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/dnsjava};
     \addlegendentry{dnsjava Clones}
 
@@ -49,5 +64,5 @@ width=0.9\textwidth]
 
     \end{axis}
     \end{tikzpicture}
-    \caption{dnsjava Clone evolution over versions\label{fig:r3}}
+    \caption{dnsjava Clone evolution over revisions\label{fig:r3}}
 \end{figure*}
