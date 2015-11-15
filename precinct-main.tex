@@ -47,7 +47,7 @@ abdelw@ece.concordia.ca}}
 Software clones are considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades.
 Interestingly, most existing techniques focus on detecting clones after they are inserted in the code.
 In this paper, we take another look at the clone detection problem by designing a novel approach for preventing the insertion of clones in the first place. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time),  detects efficiently Type 3 software clones at commit time by means of pre-commit hooks.
-This way, changes to the code are analysed and suspicious clones are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to three systems developed independently shows that PRECINCT can prevent the insertion of up to 97.7\% of the clones at commit.
+This way, changes to the code are analysed and suspicious clones are flagged before they reach the central code repository in the version control system.  The application of PRECINCT to three systems developed independently shows that PRECINCT can prevent the insertion of up to 97.7\% of the clones at commit time.
 
 
 \end{abstract}
@@ -72,7 +72,7 @@ use lexical analysis, where the source code is sliced into sequences of tokens, 
 The tokens are used to compare code fragments.
 Finally, syntactic analysis has also been performed where the source code is converted into trees, more particularly abstract syntax tree (AST), and then the clone detection is performed using tree matching algorithms\cite{Baxter1998, Komondoor2000, Tairas2006, Falke2008}.
 
-Although these techniques and tools have been shown to be useful in detecting clones, they operate offline (i.e., after the clones have been inserted). Software developers might be reluctant to use these tools on a day-to-day basis (i.e., as part of the continuous development process), unless they are involved in a major refactoring effort. This problem is somehow similar to the problem of adopting bug identification tools. Johnson et al. \cite{Johnson2013} showed that these tools are challenging to use because they do not integrate well with the day-to-day workflow of a developer. Also they output a large amount of data when applied to the entire system, making it hard to understand and analyse their results.
+Although these techniques and tools have been shown to be useful in detecting clones, they operate in an offline fashion (i.e., after the clones have been inserted). Software developers might be reluctant to use these tools on a day-to-day basis (i.e., as part of the continuous development process), unless they are involved in a major refactoring effort. This problem is somehow similar to the problem of adopting bug identification tools. Johnson et al. \cite{Johnson2013} showed that these tools are challenging to use because they do not integrate well with the day-to-day workflow of a developer. Also they output a large amount of data when applied to the entire system, making it hard to understand and analyse their results.
 
 In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) that focuses on preventing the insertion of clones at commit time, i.e., before they reach the central code repository. PRECINCT is an online clone detection technique that relies on the use of pre-commit hooks capabilities of modern source code version control systems. A pre-commit hook is a process that one can implement to receive the latest modification to the source code done by a given developer just before the code reaches the central repository.
 PRECINCT intercepts this modification and analyses its  content to see whether a suspicious clone has been introduced or not.
@@ -85,16 +85,16 @@ PRECINCT is also well integrated with the workflow of the developers since it is
 %[WAHAB: YOU NEED TO ADD A PARAGRAPH TALKING ABOUT CLONE TYPES AND MAKING THE CASE FOR TYPE 3-1, WHILE EXPLAINING THAT PRECINCT FOCUSES ON TYPE 3-1]
 
 Many taxonomies have been published in an attempt to classify clones into types. \cite{Mayrand1996,Balazinska1999,Koschke2006,Bellon2007,NeilDavey,Kontogiannis,Kapser}.
-Despite the particularities of each proposed taxonomy, researchers agree to the following classification.
+Despite the particularities of each proposed taxonomy, researchers agree on the following classification.
 Type 1 clones are copy-pasted blocks of code that only differ from each other in terms of non-code artefacts such as indentation, whitespaces, comments and so on.
 Type 2 clones are blocks of code that are syntactically identical at the exception of literals, identifiers and types that can be modified.
-In addition, Type 2 also shares the particularities of Type 1 about indentation, whitespaces and comments.
+In addition, Type 2 clones share the particularities of Type 1 about indentation, whitespaces and comments.
 Type 3 clones are similar to Type 2 clones in terms of modification of literals, identifiers, types, indentation, whitespaces and comments but also contain added or deleted code statements.
 Finally, Type 4 are code blocks that perform the same tasks, but using a completely different implementation.
 
-In this study, we focus on Type 3 clones as they are more challenging to detect. Since Type 3 clones include Type 1 and 2 clones, then these types could also be detected by PRECINCT as well.
+In this study, we focus on Type 3 clones as they are more challenging to detect. Since Type 3 clones include Type 1 and 2 clones, then these types could be detected separately by PRECINCT as well. 
 
-We evaluated the effectiveness of PRECINCT using precision and recall on three systems, developed independently and written in both C and Java. The results show that PRECINCT prevents Type 3 clones to reach the source version system with an average accuracy of 97.7\%.
+We evaluated the effectiveness of PRECINCT using precision and recall on three systems, developed independently and written in both C and Java. The results show that PRECINCT prevents Type 3 clones to reach the final source code repository with an average accuracy of 97.7\%.
 
 The rest of this paper is organized as follows: In Section~\ref{sec:Related Work}, we present the studies related to PRECINCT. Then, in Section~\ref{sec:The PRECINCT Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of  Section~\ref{sec:Experimentations}, followed by threats to validity.
 Finally, we conclude the paper in Section~\ref{sec:Conclusion}.
@@ -141,11 +141,11 @@ PRECINCT aims to prevent clone insertion while integrating the clone detection p
 \end{figure*}
 
 The PRECINCT approach is composed of six steps.
-The first two steps are part of the developer workflow.
+The first and last steps are typical steps that a developer would do when committing code.
 Indeed, the first step is the commit step where developers send their latest changes to the central repository and the last step is the reception of the commit by the central repository.
 The second step is the pre-commit hook, which kicks in as the first operation when one wants to commit.
 The pre-commit hook has access to the changes in terms of files that have been modified, more specifically, the lines that have been modified. The modified lines of the files are sent to TXL\cite{Cordy2006a} for block extraction. Then, the blocks are compared to previously extracted blocks in order to identify candidate clones using the comparison engine of NICAD\cite{Cordy2011}. We chose NICAD engine because it has been shown to provide high accuracy \cite{Cordy2011}. The tool is also readily available, easy to use, customizable, and works with TXL. Note, however, that PRECINCT can also work with other engines for comparing code fragments.
-Finally, the output of NICAD is further refined and presented to the user for a decision round.
+Finally, the output of NICAD is further refined and presented to the user for decision.
 These steps are discussed in more detail in the following subsections.
 
 \subsection{Commit}
@@ -273,7 +273,7 @@ Moreover, the clone detection in PRECINCT is less intensive than NICAD because w
 \subsection{Output and Decision}
 \label{sub:Output and Decision}
 
-In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer. The process is straightforward. Every change made by the developers goes through the previous steps and checked for the introduction of potential clones. For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure \ref{fig:hook}. In comparison to this simple and interactive output, NICAD outputs each and every detail of the detection result such as the total number of potential clones, the total number of lines, the total number of unique line text chars, the total number of unique lines, and so on. We think that so many details might make it hard for developers to react to these results. A problem that was also raised by Johnson et al. \cite{Johnson2013}.
+In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer. The process is straightforward. Every change made by the developer goes through the previous steps and is checked for the introduction of potential clones. For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure \ref{fig:hook}. In comparison to this simple and interactive output, NICAD outputs each and every detail of the detection result such as the total number of potential clones, the total number of lines, the total number of unique line text chars, the total number of unique lines, and so on. We think that so many details might make it hard for developers to react to these results. A problem that was also raised by Johnson et al. \cite{Johnson2013} when examining bug detection tools.
 Then the potential clones are stored in XML files that can be viewed using an Internet browser or a text editor.
 
 \begin{figure}
@@ -285,7 +285,7 @@ Then the potential clones are stored in XML files that can be viewed using an In
 (I) Inspect will cause a diff-like visualization of the suspected clones while (D) disregard will simply ignore the finding.
 To integrate PRECINCT in the workflow of the developer we also propose the  remove option (R). This option will simply remove the suspected file from the commit that is about to be sent to the central repository.
 Also, if the user types an option key twice, e.g., II, DD or RR, then the option will be applied to all files.
-For instance, if the developer types DD at any point, the PRECINCT's results will be disregarded and the commit will be allowed to go through. We believe that this simple mechanism will encourage developers to use PRECINCT like they would use any other feature of Git (or any other control version system).
+For instance, if the developer types DD at any point, the PRECINCT's results will be disregarded and the commit will be allowed to go through. We believe that this simple mechanism will encourage developers to use PRECINCT like they would use any other feature of Git (or any other version control system).
 
 
 
@@ -293,7 +293,7 @@ For instance, if the developer types DD at any point, the PRECINCT's results wil
 \label{sec:Experimentations}
 
 In this section, we show the effectiveness of PRECINCT for
-detect clones at commit time in three open source systems\footnote{The programs used and instructions to reproduce the experiments are made available for download from https://research.mathieu-nayrolles.com/precinct/}.
+detecting clones at commit time in three open source systems\footnote{The programs used and instructions to reproduce the experiments are made available for download from https://research.mathieu-nayrolles.com/precinct/}.
 
 The aim of the case study is to answer the following question: \textit{Can we detect clones at commit time, i.e., before they are inserted in the final code, if so, what would be the accuracy compared to a traditional clone detection tool such as NICAD?}
 
@@ -343,11 +343,11 @@ Figure \ref{fig:precinct-branching} shows the process we followed to validate th
 \end{figure}
 
 As our approach relies on commit pre-hooks to detect possible clones during the development process (more particularly at commit time), we had to find a way to \textit{replay} past commits. To do so, we  \textit{cloned} our test subjects, and then created a new branch called \textit{PRECINCT\_EXT}.
-When created, this branch is reinitialized at the initial state of the project (the first commit) and each commit can be replayed as they have originally been. At each commit, we store the time taken for PRECINCT to run as well as the number of detected clone pairs. We also store the size of the output in terms of number of lines of text output by our method. The aim is to reduce the output size to help software developers interpret the results.
+When created, this branch is reinitialized at the initial state of the project (the first commit) and each commit can be replayed as they have originally been. At each commit, we store the time taken for PRECINCT to run as well as the number of detected clone pairs. We also compute the size of the output in terms of the number of lines of text output by our method. The aim is to reduce the output size to help software developers interpret the results.
 
-To validate the results obtained by PRECINCT, we needed to use a reliable clone detection approach to validate our results. For this, we use NICAD because of its popularity, high accuracy, and availability \cite{Cordy2011}, as we discussed before. This means, we run NICAD on the revisions of the system to obtain the clones. We use NICAD clones as a baseline for comparing the results obtained by PRECINCT.
+To validate the results obtained by PRECINCT, we needed to use a reliable clone detection approach to extract clones from the target systems and use these clones as a baseline for comparison. For this, we turned to NICAD because of its popularity, high accuracy, and availability \cite{Cordy2011}, as discussed before. This means, we run NICAD on the revisions of the system to obtain the clones then we used NICAD clones as a baseline for comparing the results obtained by PRECINCT.
 
-It may appear strange that we are using NICAD to validate our approach, knowing that our approach uses NICAD's code comparison engine. In fact, what we are assessing here is the ability for PRECINCT to detect clones at commit time using changsets. The major part of PRECINCT is the ability to  intercept code changes and build working code blocks that are fed to a code fragment engine (in our case NICAD's engine). PRECINCT can be build on the top of any other code comparison engine.
+It may appear strange that we are using NICAD to validate our approach, knowing that our approach uses NICAD's code comparison engine. In fact, what we are assessing here is the ability for PRECINCT to detect clones at commit time using changsets. The major part of PRECINCT is the ability to  intercept code changes and build working code blocks that are fed to a code fragment engine (in our case NICAD's engine). PRECINCT can be built on the top of any other code comparison engine.
 
 We show the result of detecting Type 3 clones with a maximum line difference of 30\% as discussed in Table~\ref{tab:result}. As discussed in the introductory section, we chose to report on Type 3 clones because they are more challenging to detect than Type 1 and 2. PRECINCT detects Type 1 and 2 too so does NICAD. For the time being, PRECINCT is not designed to detect Type 4 clones. These clones use different implementations. Detecting Type 4 clones is part of future work.
 
@@ -396,7 +396,7 @@ We also were able to reduce by 70.1\% the number of lines output by NICAD.
 
 Finally, for Dnsjava, the number of clone pairs starts high with 258 clones and goes up until Revision 70 where it reaches 165. Another quick drop is observed at Revision 239 where we found only 25 clone pairs. The number of clone pairs stays stable until Revision 1030 where it reaches 273. PRECINCT was able to detect 82.8\% of the clone pairs detected by NICAD (226/273) with 100\% recall, while executing on average in 1.1 second while NICAD took 3 seconds in average. PRECINCT outputs  83.4\% less lines of code than NICAD.
 
-Overall, PRECINCT prevented 97.7\% of the 7000 clones (in all systems) to reach the central source code repository while executing more than twice as fast as NICAD (1.2 seconds compared to 3 seconds in average) while reducing the output in terms of lines of text output the developers by 83.4\% in average. Note here that we have not evaluate the quality of the output of PRECINCT compared to that out NICAD. We need to conduct user studies for this. We are however confident based on our own experience trying many clone detection tool, that a simpler and more interactive way to present the results of a clone detection tool is warranted.
+Overall, PRECINCT prevented 97.7\% of the 7000 clones (in all systems) to reach the central source code repository while executing more than twice as fast as NICAD (1.2 seconds compared to 3 seconds in average) while reducing the output in terms of lines of text output the developers by 83.4\% in average. Note here that we have not evaluated the quality of the output of PRECINCT compared to NICAD's output. We need to conduct user studies for this. We are, however, confident, based on our own experience trying many clone detection tools, that a simpler and more interactive way to present the results of a clone detection tool is warranted. PRECINCT aims to do just that.
 
 The difference in execution time between NICAD and PRECINCT stems from the fact that, unlike PRICINCT, NICAD is not an incremental approach. For each revision, NICAD has to extract all the code blocks and then compares all the pairs with each other. On the other hand, PRECINCT only extracts blocks when they are modified and only compares what has been modified with the rest of the program.
 
