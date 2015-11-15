@@ -10,13 +10,13 @@
     xlabel={Revisions},
     ylabel={Clones},
     xmin=0]
-    \addplot table [smooth,blue,mark=none,x=revision,y=clones,col sep=comma] {data/monit};
+    \addplot table [smooth,red,mark=none,x=revision,y=clones,col sep=comma] {data/monit};
     \addlegendentry{NICAD Detection}
 
-    \addplot table [smooth,blue,mark=none,x=revision,y=prevented,col sep=comma] {data/monit};
+    \addplot table [smooth,blue,mark=none,x=revision,y=detected,col sep=comma] {data/monit};
     \addlegendentry{PRECINCT Detection}
 
-    \addplot table [smooth,green,mark=none,x=revision,y=detected,col sep=comma] {data/monit};
+    \addplot table [smooth,red,mark=none,x=revision,y=prevented,col sep=comma] {data/monit};
     \addlegendentry{Remaining Clones}
 
     \end{axis}
