@@ -173,7 +173,7 @@ The pre-commit hook is run first, before one even types in a commit message. It 
 Depending on the exit status of the hook, the commit will be aborted and not pushed to the central repository.
 Also, developers can choose to ignore the pre-hook by using \texttt{git commit --no-verify} instead of \texttt{git commit}.
 This can be useful in case of emergency bug fix where the code has to reach the central repository as quickly as possible.
-Developers can do things like check for code style (run lint or something equivalent), check for trailing white spaces (the default hook does exactly this), or check for appropriate documentation on new methods.
+Developers can do things like check for code style, check for trailing white spaces (the default hook does exactly this), or check for appropriate documentation on new methods.
 
 PRECINCT is a set of bash scripts where the entry point of these scripts lies in the pre-commit hooks. Pre-commit hooks are easy to create and implement as depicted in Listing~\ref{gitprehook}.
 This pre-hook is shipped with Git\footnote{https://git-scm.com/}, a popular version control system.
