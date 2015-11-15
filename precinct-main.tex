@@ -274,8 +274,14 @@ Moreover, the clone detection in PRECINCT is less intensive than NICAD as we onl
 \subsection{Output and Decision}
 \label{sub:Output and Decision}
 
-In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer. The process is straightforward. Every change made by the developers has been through the previous steps and might have been marked as a potential clone. For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure \ref{fig:hook}. In comparison to this simple and interactive output, NICAD outputs each and every details of the detection such as total of potential clones, total of lines, total of unique line text chars, total unique lines, total comparisons and so on.
+In this final step, we report the result of the clone detection at commit time with respect to the latest changes made by the developer.
+The process is straightforward.
+Every change made by the developers goes through the previous steps and checked for the introduction of potential clones.
+For each file that is suspected to contain a clone, one line is printed to the command line with the following options: (I) Inspect, (D) Disregard, (R) Remove from the commit as shown by Figure \ref{fig:hook}.
+In comparison to this simple and interactive output, NICAD outputs each and every detail of the detection result such as the total number of potential clones, the total number of lines, the total number of unique line text chars, the total number of unique lines, and so on.
+We think that so many details might make it hard for developers to react to these results. A problem that was also raised by Johnson et al. \cite{Johnson2013}.
 Then the potential clones are stored in XML files that can be viewed using an Internet browser or a text editor.
+Then the potential clones are stored in XML files that can be viewed using an Internet browser or a text editor
 
 \begin{figure}
   \centering
