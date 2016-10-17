@@ -16,6 +16,45 @@
 \usepackage[linesnumbered]{algorithm2e}
 \usepackage{tikz}
 
+\newlength{\mylength}
+
+
+
+\makeatletter
+\lst@Key{numbers}{none}{%
+    \let\lst@PlaceNumber\@empty
+    \lstKV@SwitchCases{#1}%
+    {none&\\%
+     left&\def\lst@PlaceNumber{\llap{\normalfont%
+                \lst@numberstyle{\thelstnumber}\kern\lst@numbersep}}\\%
+     right&\def\lst@PlaceNumber{\rlap{\normalfont%
+                \kern\linewidth \kern\lst@numbersep%
+                \lst@numberstyle{\thelstnumber}}}\\%
+     outside&\def\lst@PlaceNumber{%
+                \setlength{\mylength}{\dimexpr\textheight-\pagetotal-\baselineskip+6pt\relax}%
+                \if@firstcolumn%
+                  \ifdim\mylength>0pt%
+                    \llap{\normalfont%
+                    \lst@numberstyle{\thelstnumber}\kern\lst@numbersep}%
+                  \else%
+                    \rlap{\normalfont%
+                    \kern\linewidth \kern\lst@numbersep%
+                    \lst@numberstyle{\thelstnumber}}%
+                  \fi%
+                \else%
+                  \ifdim\mylength>0pt%
+                    \rlap{\normalfont%
+                    \kern\linewidth \kern\lst@numbersep%
+                    \lst@numberstyle{\thelstnumber}}%
+                  \else%
+                    \llap{\normalfont%
+                    \lst@numberstyle{\thelstnumber}\kern\lst@numbersep}%
+                  \fi%
+                \fi%
+                }%
+    }{\PackageError{Listings}{Numbers #1 unknown}\@ehc}}
+\makeatother
+
 \definecolor{bblue}{HTML}{4F81BD}
 \definecolor{rred}{HTML}{C0504D}
 \definecolor{ggreen}{HTML}{9BBB59}
