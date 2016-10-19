@@ -328,7 +328,7 @@ Dnsjava [^6] is a tool for implementing the DNS (Domain Name Service) mechanisms
 This tool can be used for queries, zone transfers, and dynamic updates.
 It is not as large as the other two, but it still makes an interesting case subject because it has been well maintained for the past decade. Also, this tool is used in many other popular tools such as Aspirin, Muffin and
 Scarab. Dnsjava is composed of 1637 revisions, 233 files; the latest revision contains 47 Kloc.
-We have chosen this system because we are familiar with it as we used it before [@Nayrolles2015, Nayrolles2016d].
+We have chosen this system because we are familiar with it as we used it before [@Nayrolles2015, @Nayrolles2016d].
 
 Process {#sub:Process}
 -------
