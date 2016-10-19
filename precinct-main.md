@@ -1,4 +1,4 @@
----
+﻿---
 title: "PRECINCT: An Approach for Preventing Clone Insertion at Commit Time"
 abstract: "Software clones are generally considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades. Existing techniques can be categorized based on whether they detect clones after they reach the central code repository or by having software developers resort to external tools in an IDE. In this paper, we take another look at the clone detection problem by designing a new approach for preventing the insertion of clones at commit-time. We argue that the detection of clones at commit-time integrates well with a developer's workflow. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time), detects efficiently Type 3 software clones at commit-time using pre-commit hooks. This way, changes to the code are analysed, and suspicious clones are flagged before they reach the central code repository in the version control system. The application of PRECINCT to three systems shows that PRECINCT can prevent the insertion of up to 97.7% of the clones at commit time."
 bibliography: config/library.bib
@@ -22,13 +22,24 @@ Studies have shown that clones can account for up to 50% of code in a given soft
 Although, developers often reuse code on purpose [@Kim2005], clones are generally considered as a bad practice in software development since they may introduce bugs [@Kapser2006; @Juergens2009; @Li2006].
 
 In the last two decades, there have been many studies and tools that aim at detecting clones. 
-They can be grouped into two categories depending on whether they operate locally on a developer's workstation (e.g., [REF]) or remotely on server (e.g., [REF]). [WAHAB: TWO REFS FOR EACH IS ENOUGH] 
+They can be grouped into two categories depending on whether they operate locally on a developer's workstation (e.g., [@Zibran2012; @Sajnani2016]) or remotely on server (e.g., [@yamanaka2012industrial; @Zhang2013a]).
 
-Local clone detection approaches are typically implemented as IDE plugins or external tools. IDE-based methods tend to issue many warnings to developers that may interrupt their work, hence hindering their productivity [@Ko2006d]. Developers may be reluctant to use external tools unless they are involved in a major refactoring effort. These tools cause overhead because of the context switch they incur. This problem is somehow similar to the problem of adopting bug identification tools. Literature shows that these tools are challenging to use because they do not integrate well with the day-to-day workflow of developers [REF]. The problem with remote approaches is that the detection occurs too late in the development process. Once the clones reach the central repository, they can be pulled by other members of the development team, further complicating the removal and management of clones. 
+Local clone detection approaches are typically implemented as IDE plugins or external tools. 
+IDE-based methods tend to issue many warnings to developers that may interrupt their work, hence hindering their productivity [@Ko2006d]. 
+
+Developers may be reluctant to use external tools unless they are involved in a major refactoring effort. 
+These tools cause overhead because of the context switch they incur  [@Robertson2004; @Robertson2006; @Beckwith2006]. 
+This problem is somehow similar to the problem of adopting bug identification tools. 
+Literature shows that these tools are challenging to use because they do not integrate well with the day-to-day workflow of developers [@Lewis2013; @Foss2015; @Layman2007; @Ayewah2007; @Ayewah2008; @Johnson2013; @Norman2013; @Hovemeyer2004; @Lopez2011]. 
+The problem with remote approaches is that the detection occurs too late in the development process. 
+Once the clones reach the central repository, they can be pulled by other members of the development team, further complicating the removal and management of clones. 
 
 In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) that focuses on preventing the insertion of clones at commit-time (i.e., before they reach the central code repository). PRECINCT is a trade-off between local and remote approaches.  The approach  relies on the use of pre-commit hooks capabilities of modern source code version control systems. A pre-commit hook is a process that one can implement to receive the latest modification to the source code done by a given developer just before the code reaches the central repository. PRECINCT intercepts this modification and analyses its content to see whether a suspicious clone has been introduced or not. A flag is raised, source code version control systems such as Git [^1], if a code fragment is suspected to be a clone of an existing code segment. This said, only a fraction of the code is analysed, in an incremental manner, making PRECINCT computationally efficient.
 
-To the best of our knowledge, PRECINCT is the first clones detection technique that operates at commit-time. In this study, we focus on Type 3 clones as they are more challenging to detect [REF]. Since Type 3 clones include Type 1 and 2 clones, then these types could be detected by PRECINCT as well. We evaluated the effectiveness of PRECINCT on three systems, written in C and Java. The results show that PRECINCT prevents Type 3 clones to reach the final source code repository with an average accuracy of 97.7%.
+To the best of our knowledge, PRECINCT is the first clones detection technique that operates at commit-time. 
+In this study, we focus on Type 3 clones as they are more challenging to detect [@Bellon2007; @Kontogiannis; @Kapser]. 
+Since Type 3 clones include Type 1 and 2 clones, then these types could be detected by PRECINCT as well. 
+We evaluated the effectiveness of PRECINCT on three systems, written in C and Java. The results show that PRECINCT prevents Type 3 clones to reach the final source code repository with an average accuracy of 97.7%.
 
 The rest of this paper is organized as follows: In Section \ref{sec:Related-Work}, we present the studies related to PRECINCT. Then, in Section \ref{sec:The-PRECINCT-Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of Section \ref{sec:Experimentations}, followed by threats to validity.
 Finally, we conclude the paper in Section \ref{sec:Conclusion}.
@@ -36,37 +47,25 @@ Finally, we conclude the paper in Section \ref{sec:Conclusion}.
 Related Work {#sec:Related-Work}
 ============
 
-Clone detection is an important and difficult task. Throughout the years, researchers and practitioners have developed a considerable number of methods and tools to detect efficiently source code clones.
+Clone detection is an important and difficult task. 
+Throughout the years, researchers and practitioners have developed a considerable number of methods and tools to detect efficiently source code clones.
+In this section, we first describe some classical techniques for code clone detection and then present noticeable local- and remote-based approaches. 
 
-Tung _et al_ proposed an advanced clone-aware source code management system called Clever. Their approach uses abstract syntax trees to detect, update, and manage clones. While efficient, their approach does not prevent the introduction of clones, and it is not incremental. Developers have to run a project-wide detection for each commit of a version of the program. The same teams [@Nguyen2012a] conducted follow-up study by making Clever incremental. Their new tool, JSync, is an incremental clone detector that will only perform the detection of clones on the new changes. While the new version of their work is incremental, it is different from PRECINCT is the sense that their approach relies on developers to run the approach manually to detect clones, potentially leading to a loss of productivity as described in the previous section. 
-
-Yuki _et al_ conducted one of the few studies on the application of clone management to industrial systems.They implemented a tool named Clone Notifier at NEC with the help of experienced practitioners. They specifically focus on clone insertion notification, very much like PRECINCT. Unlike PRECINCT, their approach uses a remote approach in which the changes are committed (i.e., they reach the central repository, and anyone can pull them into they machines) and a central server analyses the changes. If the committed changes contain newly inserted clones, then an email notification is sent. We first argue that detecting clones in a remote fashion can be damaging for the project as a clone can be synchronized by other team members, which can lead to challenging merges when the clones are removed. Secondly, the authors did not report any performance measurements and the longer it takes for the notification to be sent to the developer, the harder it can be to reconstruct the mind-map required for clone removal. PRECINCT, however, is able to perform an incremental online detection in few seconds. 
-
-Gode and Koschke [@Gode2009] proposed an incremental clone detector that relies on the results of analysis from past versions of a system to only analyze the new changes. 
-Their clone detector takes the form of an IDE plugin that alerts developers as soon as a clone is inserted into the program. IDE warnings can be quite distracting as shown by Ko _et al_ [@Ko2006d]. PRECINCT operates at commit-time, and hence we believe it fits better within the developer's workflow.
+## Techniques
 
 Tree-matching and metric-based methods are two sub-categories of syntactic analysis for clone detection.
 Syntactic analyses consist of building abstract syntax trees (AST) and analyze them with a set of dedicated metrics or searching for identical sub-trees. Many existing AST-based approaches rely on sub-tree comparison to detect clone, including the work of Baxter et al.[@Baxter1998], Wahleret et al. [@Wahler], and the work of Jian et al. with Deckard [@Jiang2007].
 An AST-based approach compares metrics computed on the AST, rather than the code itself, to identify clones [@Patenaude1999; @Balazinska].
+
+Text-based techniques use the code and compare sequences of code blocks to each other to identify potential clones. Johnson was perhaps the first one to use fingerprints to detect clones [@Johnson1993; @Johnson1994]. Blocks of code are hashed, producing fingerprints that can be compared.
+If two blocks share the same fingerprint, they are considered as clones.
+Manber et al. [@Manber1994] and Ducasse et al. [@Ducasse1999] refined the fingerprint technique by using leading keywords and dot-plots.
 
 Another approach for detecting clones is to use static analysis and to leverage the semantics of a program to improve the detection. These techniques rely on program dependency graphs, where nodes are statements and edges are dependencies.
 Then, the problem of finding clones is reduced to the problem of finding identical sub-groups in the program dependency graph.
 Examples of existing techniques that fall into this category are the ones presented by Krinke et al.[@Krinke2001] and Gabel et al. [@Gabel2008].
 
 Many clone detection tools resort to lexical approaches for clone detection. Here, the code is transformed into a series of tokens. If sub-series repeat themselves, it means that a potential clone is in the code. Some popular tools that use this technique include Dup [@Baker], CCFinder [@Kamiya2002], and CP-Miner [@Li2006].
-
-Niko _el al._ proposed techniques revolving around hashing to obtain a quick answer while detecting Type 1, Type 2, and Type 3 clones in Squeaksource [@Niko2012]. 
-While their approach works on a single system (i.e., detecting clones on one version of one system), they found that more than 14% of all clones are copied from project to project, stressing the need for fast and scalable approaches for clone detection to detect clone across a large number of projects. 
-On the performance side, Niko _el al._ were able to perform clone detection on 74,026 classes in 14:45 hours (4,747 class per hour) with a 8 core Xeon at 2.3 GHz with 16 GB of RAM.
-While these results are promising, especially because the approach detects clones across projects and versions, the computing power required is still considerable. 
-
-Similarly, Saini _et al_ and Sajnani _et al_ proposed an approach, called SourcererCC [@Saini2016; @Sajnani2016].
-SourcererCC targets fast clone detection on developers' workstation (12 GB RAM). 
-SourcererCC is a token-based clone detector that uses an optimized inverted-index. It was tested on 25K projects cumulating 250 MLOC. The technique achieves a precision of 86% and a recall of 86%-100% for clones of Type 1, 2 and 3.
-
-Toomey _el al._ also proposed an efficient token based approach for detecting clones called ctcompare [@Toomey2012].
-Their tokenization is, however, different than most approaches as they used lexical analysis to produce sequences of tokens that can be transformed into token tuples.
-ctcompare is accurate, scalable and fast but does not detect Type 3 clones.
 
 In 2010, Hummel _et al._ proposed an approach that is both incremental and scalable using index-based clone detection [@Hummel2010].
 Incremental clone detection is a technique where only the changes from one version to another are analysed.
@@ -81,9 +80,59 @@ Higo _et al._ proposed an incremental clone detection approach based on program 
 Using PDG is arguably more complex than text comparison and allows the detection of clone structures that are scattered in the program.
 They were able to analyze 5,903 revisions in 15 hours in Apache Ant.  
 
-Text-based techniques use the code and compare sequences of code blocks to each other to identify potential clones. Johnson was perhaps the first one to use fingerprints to detect clones [@Johnson1993; @Johnson1994]. Blocks of code are hashed, producing fingerprints that can be compared.
-If two blocks share the same fingerprint, they are considered as clones.
-Manber et al. [@Manber1994] and Ducasse et al. [@Ducasse1999] refined the fingerprint technique by using leading keywords and dot-plots.
+
+## Remote Implementation
+
+
+Yuki _et al_ conducted one of the few studies on the application of clone management to industrial systems [@yamanaka2012industrial].They implemented a tool named Clone Notifier at NEC with the help of experienced practitioners. They specifically focus on clone insertion notification, very much like PRECINCT. Unlike PRECINCT, their approach uses a remote approach in which the changes are committed (i.e., they reach the central repository, and anyone can pull them into they machines) and a central server analyses the changes. If the committed changes contain newly inserted clones, then an email notification is sent. We first argue that detecting clones in a remote fashion can be damaging for the project as a clone can be synchronized by other team members, which can lead to challenging merges when the clones are removed. Secondly, the authors did not report any performance measurements and the longer it takes for the notification to be sent to the developer, the harder it can be to reconstruct the mind-map required for clone removal. PRECINCT, however, is able to perform an incremental online detection in few seconds. 
+
+Zhang et al proposed CCEvents (Code Cloning Events) [@Zhang2013a].
+Their approach monitors code repository continuously and allows stockholders to use a domain specific language called CCEML to specify which notifications they wish to receive.
+
+In addition, many commercial tools now include clone detection as part of continuous integration. 
+Codeclimate [^codeclimate], Codacy [^codacy], Scrutinizer [^scrutinizer] and Coveralls[^coveralls] are some noticeable examples. 
+These tools will perform various tasks such as executing unit test suite, computing quality metrics and, performing a clone detection and provide a report by email.
+The techniques they use for clone detection is not known.
+
+Remote approaches do not hinder the productivity of developers, but we argue that the detection intervenes too late in the development process as the clones have reached the central repository and can be pulled by other members of the organization. Consequently, they can use these clones in their code and make their removal even more challenging. 
+Finally, notifications from remote approaches arrive too late as developers will likely have move to another task.
+
+
+## Local Implementation
+
+### IDE
+
+Gode and Koschke [@Gode2009] proposed an incremental clone detector that relies on the results of analysis from past versions of a system to only analyze the new changes. 
+Their clone detector takes the form of an IDE plugin that alerts developers as soon as a clone is inserted into the program. 
+
+Zibran and Roy proposed another IDE-based clone management system to detect and refactor near-miss clones for Eclipse [@Zibran2011; @Zibran2012]. 
+Their approach uses a k-difference hybrid suffix tree algorithm and is able to detect clones in real-time and propsoe a semi-automated refactoring process. 
+
+Robert el al proposed another IDE plugin for Eclipse called CloneDR based on ASTs that introduced novel visualization for clone detection such as scatter-plots [@Tairas2006a].
+
+As we stated in the introduction, IDE-based methods tend to issue many warnings to developers that may interrupt their work, hence hindering their productivity [@Ko2006d]. 
+Indeed, Latoza et al found that it exists six different reasons to duplicate code ((a) separate developers implement same functionality, (b) copy and paste of example code, (c) design decision distributed over multiple methods, (d) copy of other team’s code base, (e) branch maintained separately, (f) reimplementation by same developer in different language) and developers are aware that they are creating clones in five out of the six situations (b, c, d, e, and f) [@LaToza2006]. Consequently, warnings provided by IDE-based local detection are truly useful in the unlikely case of two developers re-implementing the same functionality.
+
+PRECINCT operates at commit-time, and hence we believe it does not hinder the productivity of developers while being well-integrated with their workflow.
+
+### External Tools
+
+
+Tung _et al_ proposed an advanced clone-aware source code management system called Clever. Their approach uses abstract syntax trees to detect, update, and manage clones. While efficient, their approach does not prevent the introduction of clones, and it is not incremental. Developers have to run a project-wide detection for each commit of a version of the program. The same teams [@Nguyen2012a] conducted follow-up study by making Clever incremental. Their new tool, JSync, is an incremental clone detector that will only perform the detection of clones on the new changes. While the new version of their work is incremental, it is different from PRECINCT is the sense that their approach relies on developers to run the approach manually to detect clones, potentially leading to a loss of productivity as described in the previous section. 
+
+
+Niko _el al._ proposed techniques revolving around hashing to obtain a quick answer while detecting Type 1, Type 2, and Type 3 clones in Squeaksource [@Niko2012]. 
+While their approach works on a single system (i.e., detecting clones on one version of one system), they found that more than 14% of all clones are copied from project to project, stressing the need for fast and scalable approaches for clone detection to detect clone across a large number of projects. 
+On the performance side, Niko _el al._ were able to perform clone detection on 74,026 classes in 14:45 hours (4,747 class per hour) with a 8 core Xeon at 2.3 GHz with 16 GB of RAM.
+While these results are promising, especially because the approach detects clones across projects and versions, the computing power required is still considerable. 
+
+Similarly, Saini _et al_ and Sajnani _et al_ proposed an approach, called SourcererCC [@Saini2016; @Sajnani2016].
+SourcererCC targets fast clone detection on developers' workstation (12 GB RAM). 
+SourcererCC is a token-based clone detector that uses an optimized inverted-index. It was tested on 25K projects cumulating 250 MLOC. The technique achieves a precision of 86% and a recall of 86%-100% for clones of Type 1, 2 and 3.
+
+Toomey _el al._ also proposed an efficient token based approach for detecting clones called ctcompare [@Toomey2012].
+Their tokenization is, however, different than most approaches as they used lexical analysis to produce sequences of tokens that can be transformed into token tuples.
+ctcompare is accurate, scalable and fast but does not detect Type 3 clones.
 
 PRECINCT aims to prevent clone insertion at commit-time. This way, software developers do not have to resort to external tools or IDE plugins to remove clones after they are inserted. Our approach notifies software developers of possible clones as they commit their code. It is our opinion that clone detection should be part of the "Just-In-Time Quality Assurance" [@Kamei2013b] movement where defect prediction models identify risky changes as soon as they are committed. This allows for less time-consuming approaches where developers can analyse risky changes while they are still fresh in their minds rather than being assigned a list of risky packages/class to review by the quality assurance team.
 Zibran recently proposed an infrastructure for integrating clone management that covers clone detection and refactoring on developers' workstations supported by a remote server infrastructure [@Zibran2016]. It could, if implemented, fit in the category of "Just-In-Time Clone Detection." This work is close to ours in the sense that the authors propose an incremental clone detection that integrates well with the workflow of developers. We argue, however, that our approach is simpler to implement and uses directly the code versioning tool rather than yet another plugin in the developer's IDE. Finally, our approach has been implemented and tested, while the approach presented by Zibran _et al._ is only conceptual.
@@ -367,8 +416,12 @@ To build on this work, we need to experiment with additional (and larger) system
 [^4]: https://mmonit.com/monit/
 [^5]: http://www.jhotdraw.org/
 [^6]: http://www.dnsjava.org/
+[^codeclimate]: https://codeclimate.com/
+[^codacy]: https://codacy.com/
+[^scrutinizer]: https://scrutinizer-ci.com/
+[^coveralls]: https://coveralls.io/
 
-\section*{Reference}
+\section*{References}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{2pt plus 2pt minus 1pt}
 \small
