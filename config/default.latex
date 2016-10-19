@@ -20,7 +20,7 @@
 \newlength{\mylength}
 
 
-
+\usepackage{color}
 \makeatletter
 \lst@Key{numbers}{none}{%
     \let\lst@PlaceNumber\@empty
