@@ -1,6 +1,6 @@
-﻿---
+---
 title: "PRECINCT: An Approach for Preventing Clone Insertion at Commit Time"
-abstract: "Software clones are generally considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades. Existing techniques can be categorized based on whether they detect clones after they reach the central code repository or by having software developers resort to external tools to detect clones in an IDE. In this paper, we take another look at the clone detection problem by designing a new approach for preventing the insertion of clones at commit-time. We argue that the detection of clones at commit-time integrates well with a developer's workflow. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time), detects efficiently Type 3 software clones at commit time using pre-commit hooks. This way, changes to the code are analyzed, and suspicious clones are flagged before they reach the central code repository in the version control system. The application of PRECINCT to three systems shows that PRECINCT can prevent the insertion of up to 97.7% of the clones at commit time."
+abstract: "Software clones are generally considered harmful since they may cause the same buggy code to appear in multiple places in the code, making software maintenance and evolution tasks challenging. Clone detection has been an active research field for almost two decades. Existing techniques can be categorized based on whether they detect clones after they reach the central code repository or by having software developers resort to external tools in an IDE. In this paper, we take another look at the clone detection problem by designing a new approach for preventing the insertion of clones at commit-time. We argue that the detection of clones at commit-time integrates well with a developer's workflow. Our approach, called PRECINCT (PREventing Clones INsertion at Commit Time), detects efficiently Type 3 software clones at commit-time using pre-commit hooks. This way, changes to the code are analysed, and suspicious clones are flagged before they reach the central code repository in the version control system. The application of PRECINCT to three systems shows that PRECINCT can prevent the insertion of up to 97.7% of the clones at commit time."
 bibliography: config/library.bib
 classoption: conference
 author: 
@@ -19,64 +19,16 @@ Introduction {#sec:Introduction}
 
 Code clones appear when developers reuse code with little to no modification to the original code.
 Studies have shown that clones can account for up to 50% of code in a given software system [@Baker; @StephaneDucasse].
-Developers often reuse code (and create clones) in their software on purpose [@Kim2005].
-Nevertheless, clones are generally considered a bad practice in software development since they may introduce bugs [@Kapser2006; @Juergens2009; @Li2006].
-If a bug is discovered in one segment of the code that has been copied and pasted several times, then the developers will have to remember the places where this segment has been reused to fix the bug in each place.
+Although, developers often reuse code on purpose [@Kim2005], clones are generally considered as a bad practice in software development since they may introduce bugs [@Kapser2006; @Juergens2009; @Li2006].
 
 In the last two decades, there have been many studies and tools that aim at detecting clones. 
-They can be grouped into two categories: local and remote.
-Local approaches detect clone on developers' workstations or via an IDE plugin.
-Remote approaches, on the other hand, detect clones after they reach the central code repository and notify developers, asynchronously, of the detection result.
+They can be grouped into two categories depending on whether they operate locally on a developer's workstation (e.g., [REF]) or remotely on server (e.g., [REF]). [WAHAB: TWO REFS FOR EACH IS ENOUGH] 
 
-The same set of techniques can be applied for both categories. 
+Local clone detection approaches are typically implemented as IDE plugins or external tools. IDE-based methods tend to issue many warnings to developers that may interrupt their work, hence hindering their productivity [@Ko2006d]. Developers may be reluctant to use external tools unless they are involved in a major refactoring effort. These tools cause overhead because of the context switch they incur. This problem is somehow similar to the problem of adopting bug identification tools. Literature shows that these tools are challenging to use because they do not integrate well with the day-to-day workflow of developers [REF]. The problem with remote approaches is that the detection occurs too late in the development process. Once the clones reach the central repository, they can be pulled by other members of the development team, further complicating the removal and management of clones. 
 
-For example, techniques involving treating the source code as text and use transformation and normalization methods to compare various code fragments [@Johnson1994; @Johnson1993; @Cordy2011; @Roy2008].
-Another well-known technique is to use lexical analysis, where the source code is sliced into sequences of tokens, similar to the way a compiler operates [@Baker; @Bakera; @Baker2002; @Kamiya2002; @Li2006].
-The tokens are used to compare code fragments.
-Finally, syntactic analysis has also been performed where the source code is converted into trees, more particularly abstract syntax tree (AST), and then the clone detection is performed using tree matching algorithms [@Baxter1998; @Komondoor2000; @Tairas2006; @Falke2008].
+In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) that focuses on preventing the insertion of clones at commit-time (i.e., before they reach the central code repository). PRECINCT is a trade-off between local and remote approaches.  The approach  relies on the use of pre-commit hooks capabilities of modern source code version control systems. A pre-commit hook is a process that one can implement to receive the latest modification to the source code done by a given developer just before the code reaches the central repository. PRECINCT intercepts this modification and analyses its content to see whether a suspicious clone has been introduced or not. A flag is raised, source code version control systems such as Git [^1], if a code fragment is suspected to be a clone of an existing code segment. This said, only a fraction of the code is analysed, in an incremental manner, making PRECINCT computationally efficient.
 
-More recently, incremental clone detection has been introduced.
-Incremental clone detection approaches only compute the clone detection on the differences between two versions of the same software by saving the results of the previous analyses ([@Gode2009; @Hummel2010; @Nguyen2012a] are some noticeable examples). 
-In rapidly changing and growing software incremental clone detection achieve high efficiency while remaining computationally affordable.
-
-Software developers might be reluctant to use these remote or local approaches on a day-to-day basis (i.e., as part of the continuous development process) unless they are involved in a major refactoring effort. 
-This problem is somehow similar to the problem of adopting bug identification tools. 
-Literature shows that these tools are challenging to use because they do not integrate well with the day-to-day workflow of a developers, and they output a large amount of data when applied to the entire system, making it hard to understand and analyze their results [@Lewis2013; @Foss2015; @Layman2007; @Ayewah2007; @Ayewah2008; @Johnson2013; @Norman2013; @Hovemeyer2004; @Lopez2011].
-
-The lack of integration with developers' workflow (i.e., coding, testing,  debugging, committing) for tool-based local detection is easy to understand as developers have exit their IDE to use them.
-Hence, using them lead to a significant overhead linked to context-switching [@Robertson2004; @Robertson2006; @Beckwith2006]. 
-
-Latoza _et al_ found that it exists six different reasons to duplicate code  ((a) separate developers implement same functionality, (b) copy and paste of example code, (c) design decision distributed over multiple methods, (d) copy of other team’s code base, (e) branch maintained separately, (f) reimplementation by same developer in different language) and developers are aware that they are creating clones in five out of the six situations (b, c, d, e, and f) [@LaToza2006].
-Consequently, warnings provided by IDE-based local detection are truly useful in the unlikely case of two developers re-implementing the same functionality.
-In the other cases, it interrupts developers and can make them lose track of the task at hand and hinder their productivity [@Ko2006d].
-
-Remote approaches do not hinder the productivity of developers, but we argue that the detection intervenes too late in the development process as the clones have reached the central repository and can be pulled by other members of the organization.
-Consequently, they can use these clones in their code and make their removal even more challenging.
-Finally, notifications from remote approaches arrive too late as developers will likely have move to another task.
-
-In this paper, we present PRECINCT (PREventing Clones INsertion at Commit Time) that focuses on preventing the insertion of clones at commit time, i.e., before they reach the central code repository. 
-PRECINCT is clone detection technique that relies on the use of pre-commit hooks capabilities of modern source code version control systems. 
-A pre-commit hook is a process that one can implement to receive the latest modification to the source code done by a given developer just before the code reaches the central repository.
-PRECINCT intercepts this modification and analyses its content to see whether a suspicious clone has been introduced or not.
-A flag is raised, source code version control systems such as Git [^1], if a code fragment is suspected to be a clone of an existing code segment.
-This said, only a fraction of the code is analyzed, in an incremental manner, making PRECINCT computationally efficient.
-
-PRECINCT does not hinder the productivity of developers as it stays away developers IDE and does not produce lengthy or hard to interpret results. 
-Also, our approach prevents the inserted clones to reach the central repository and to be versioned by other developers.
-We believe that acting at commit-time is the best tradeoff between remote and local approaches.
-To the best of our knowledge, PRECINCT is the first clones detection engine that operates at commit-time.
-
-Many taxonomies have been published in an attempt to classify clones into types [@Mayrand1996; @Balazinska1999; @Koschke2006; @Bellon2007; @Kontogiannis; @Kapser].
-Despite the particularities of each proposed taxonomy, researchers agree on the following classification.
-Type 1 clones are copy-pasted blocks of code that only differ from each other regarding non-code artifacts such as indentation, whitespaces, comments and so on.
-Type 2 clones are blocks of code that are syntactically identical except literals, identifiers, and types that can be modified.
-Also, Type 2 clones share the particularities of Type 1 about indentation, whitespaces, and comments.
-Type 3 clones are similar to Type 2 clones regarding modification of literals, identifiers, types, indentation, whitespaces, and comments but also contain added or deleted code statements.
-Finally, Type 4 are code blocks that perform the same tasks but using a completely different implementation.
-
-In this study, we focus on Type 3 clones as they are more challenging to detect. Since Type 3 clones include Type 1 and 2 clones, then these types could be detected separately by PRECINCT as well.
-
-We evaluated the effectiveness of PRECINCT using precision and recall on three systems, developed independently and written in both C and Java. The results show that PRECINCT prevents Type 3 clones to reach the final source code repository with an average accuracy of 97.7%.
+To the best of our knowledge, PRECINCT is the first clones detection technique that operates at commit-time. In this study, we focus on Type 3 clones as they are more challenging to detect [REF]. Since Type 3 clones include Type 1 and 2 clones, then these types could be detected by PRECINCT as well. We evaluated the effectiveness of PRECINCT on three systems, written in C and Java. The results show that PRECINCT prevents Type 3 clones to reach the final source code repository with an average accuracy of 97.7%.
 
 The rest of this paper is organized as follows: In Section \ref{sec:Related-Work}, we present the studies related to PRECINCT. Then, in Section \ref{sec:The-PRECINCT-Approach}, we present the PRECINCT approach. The evaluation of PRECINCT is the subject of Section \ref{sec:Experimentations}, followed by threats to validity.
 Finally, we conclude the paper in Section \ref{sec:Conclusion}.
@@ -94,18 +46,16 @@ Gode and Koschke [@Gode2009] proposed an incremental clone detector that relies 
 Their clone detector takes the form of an IDE plugin that alerts developers as soon as a clone is inserted into the program. IDE warnings can be quite distracting as shown by Ko _et al_ [@Ko2006d]. PRECINCT operates at commit-time, and hence we believe it fits better within the developer's workflow.
 
 Tree-matching and metric-based methods are two sub-categories of syntactic analysis for clone detection.
-Syntactic analyses consist of building abstract syntax trees (AST) and analyze them with a set of dedicated metrics or searching for identical sub-trees.
-Many existing AST-based approaches rely on sub-tree comparison to detect clone, including the work of Baxter et al.[@Baxter1998], Wahleret et al. [@Wahler], and the work of Jian et al. with Deckard [@Jiang2007].
+Syntactic analyses consist of building abstract syntax trees (AST) and analyze them with a set of dedicated metrics or searching for identical sub-trees. Many existing AST-based approaches rely on sub-tree comparison to detect clone, including the work of Baxter et al.[@Baxter1998], Wahleret et al. [@Wahler], and the work of Jian et al. with Deckard [@Jiang2007].
 An AST-based approach compares metrics computed on the AST, rather than the code itself, to identify clones [@Patenaude1999; @Balazinska].
 
-Another approach to detecting clones is to use static analysis and to leverage the semantics of a program to improve the detection.
-These techniques rely on program dependency graphs, where nodes are statements and edges are dependencies.
+Another approach for detecting clones is to use static analysis and to leverage the semantics of a program to improve the detection. These techniques rely on program dependency graphs, where nodes are statements and edges are dependencies.
 Then, the problem of finding clones is reduced to the problem of finding identical sub-groups in the program dependency graph.
 Examples of existing techniques that fall into this category are the ones presented by Krinke et al.[@Krinke2001] and Gabel et al. [@Gabel2008].
 
-Many clone detection tools have been created using a lexical approach for clone detection. Here, the code is transformed into a series of tokens. If sub-series repeat themselves, it means that a potential clone is in the code. Some popular tools that use this technique include Dup [@Baker], CCFinder [@Kamiya2002], and CP-Miner [@Li2006].
+Many clone detection tools resort to lexical approaches for clone detection. Here, the code is transformed into a series of tokens. If sub-series repeat themselves, it means that a potential clone is in the code. Some popular tools that use this technique include Dup [@Baker], CCFinder [@Kamiya2002], and CP-Miner [@Li2006].
 
-Niko _el al._ proposed techniques revolving around hashing to obtain a quick answer while detecting type-1, type-2, and type-3 clones in Squeaksource [@Niko2012]. 
+Niko _el al._ proposed techniques revolving around hashing to obtain a quick answer while detecting Type 1, Type 2, and Type 3 clones in Squeaksource [@Niko2012]. 
 While their approach works on a single system (i.e., detecting clones on one version of one system), they found that more than 14% of all clones are copied from project to project, stressing the need for fast and scalable approaches for clone detection to detect clone across a large number of projects. 
 On the performance side, Niko _el al._ were able to perform clone detection on 74,026 classes in 14:45 hours (4,747 class per hour) with a 8 core Xeon at 2.3 GHz with 16 GB of RAM.
 While these results are promising, especially because the approach detects clones across projects and versions, the computing power required is still considerable. 
@@ -135,14 +85,8 @@ Text-based techniques use the code and compare sequences of code blocks to each 
 If two blocks share the same fingerprint, they are considered as clones.
 Manber et al. [@Manber1994] and Ducasse et al. [@Ducasse1999] refined the fingerprint technique by using leading keywords and dot-plots.
 
-PRECINCT aims to prevent clone insertion at commit-time. This way, software developers do not have to resort to external tools or IDE plugins to remove clones after they are inserted. Our approach notifies software developers of possible clones as they commit their code.
-It is our opinion that clone detection should be part of the "Just-In-Time Quality Assurance" [@Kamei2013b] movement where defect prediction models identify risky changes as soon as they are committed. 
-This allows for less time-consuming approaches where developers can analyze risky changes while they are still fresh in their minds rather than being assigned a list of risky packages/class to review by the quality insurance team.
-Zibran recently proposed an infrastructure for integrating clone management that covers clone detection and refactoring on developers' workstations supported by a remote server infrastructure [@Zibran2016].
-It could, if implemented, fit in the category of "Just-In-Time Clone Detection."
-This work is close to ours in the sense that the authors propose an incremental clone detection that integrates well with the workflow of developers.
-We argue, however, that our approach is simpler to implement and uses directly the code versioning tool rather than yet another plugin in the developer's IDE. 
-Finally, our approach has been implemented and tested, while the approach presented by Zibran _et al._ is only conceptual.
+PRECINCT aims to prevent clone insertion at commit-time. This way, software developers do not have to resort to external tools or IDE plugins to remove clones after they are inserted. Our approach notifies software developers of possible clones as they commit their code. It is our opinion that clone detection should be part of the "Just-In-Time Quality Assurance" [@Kamei2013b] movement where defect prediction models identify risky changes as soon as they are committed. This allows for less time-consuming approaches where developers can analyse risky changes while they are still fresh in their minds rather than being assigned a list of risky packages/class to review by the quality assurance team.
+Zibran recently proposed an infrastructure for integrating clone management that covers clone detection and refactoring on developers' workstations supported by a remote server infrastructure [@Zibran2016]. It could, if implemented, fit in the category of "Just-In-Time Clone Detection." This work is close to ours in the sense that the authors propose an incremental clone detection that integrates well with the workflow of developers. We argue, however, that our approach is simpler to implement and uses directly the code versioning tool rather than yet another plugin in the developer's IDE. Finally, our approach has been implemented and tested, while the approach presented by Zibran _et al._ is only conceptual.
 
 
 The PRECINCT Approach {#sec:The-PRECINCT-Approach}
